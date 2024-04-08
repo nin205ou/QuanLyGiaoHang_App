@@ -1,0 +1,15 @@
+To run this project, need to follow below steps:
+
+** with UI(in folder app)
+1: cd app
+2: npm install to install package
+3: npx expo start
+
+read the documentation (https://docs.expo.dev/)
+and download the apk for development in https://expo.dev/go
+
+
+** with API (in folder server)
+1: cd server
+2: cd delivery
+3: python manage.py runserver
