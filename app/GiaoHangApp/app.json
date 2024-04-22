@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "GiaoHangApp",
+    "slug": "GiaoHangApp",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "GiaoHangApp"
+}
