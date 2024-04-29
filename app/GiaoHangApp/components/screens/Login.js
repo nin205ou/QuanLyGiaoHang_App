@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button,TouchableOpacity } from 'react-native';
+import { View, Text, TextInput,TouchableOpacity } from 'react-native';
 
 export default function Login({ navigation }) {
   const [username, setUsername] = useState('');
@@ -12,6 +12,7 @@ export default function Login({ navigation }) {
     console.log('Password:', password);
   };
 
+  
   const handleRegister = () => {
     navigation.navigate('Register');
   };
