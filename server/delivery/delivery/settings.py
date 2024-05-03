@@ -32,13 +32,16 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
-    'rest_framework'
+    'rest_framework',
+    'django.contrib.auth',
+    'django.contrib.messages',
+    
+    'oauth2_provider',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'delivery.urls'
@@ -81,8 +85,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'delivery_app_db',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '',
+        'PASSWORD': '123',
+        'OPTIONS': {
+            'charset': 'utf8',
+            'collation': 'utf8_general_ci',
+        },
     }
 }
 
@@ -105,8 +112,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ]
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 AUTH_USER_MODEL = "api.User"
 
+CLIENT_ID = 'AENcdHOHsUoIgOSKLSNtH5pIZbbJzWhLodGkgCRt'
+CLIENT_SECRET = 'GxDX99jOIbBwIeS0YmsSlKV0ltFrO1ZrxUIcV8nhUffz8qA7jd6ouLH1lCkBWU8aSU08qlB2dDhpndKdg6Rb2e9NyQER4MimQyndabuJNGVToplN9jMLh8Rq9bFTOlrm'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

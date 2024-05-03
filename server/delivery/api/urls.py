@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register('payment_methods', views.PaymentMethodViewSet)
 router.register('type_delivery', views.TypeDeliveryViewSet)
 router.register('status_order', views.StatusOrderViewSet)
+router.register('users', views.UserViewSet)
 
 #Address
 router.register('admin_region', views.AdminRegionViewSet)

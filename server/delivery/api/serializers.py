@@ -17,6 +17,16 @@ class StatusOrderSerializer(ModelSerializer):
         model = StatusOrder
         fields = ['code', 'name']
         
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'password', 'phone_number', 'cccd', 'address', 'avatar', 'role']
+        extra_kwargs = {'password': {'write_only': True}}
+        
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+        
         
 #Address
 class AdminRegionSerializer(ModelSerializer):

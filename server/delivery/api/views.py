@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from rest_framework import viewsets, permissions
-from .models import PaymentMethod, TypeDelivery, StatusOrder
-from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, StatusOrderSerializer
+from rest_framework import viewsets, permissions, generics
+from rest_framework.parsers import MultiPartParser
+from .models import PaymentMethod, TypeDelivery, StatusOrder, User
+from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, StatusOrderSerializer, UserSerializer
 
 from .models import AdministrativeRegion, AdministrativeUnit, Province, District, Ward
 from .serializers import AdminRegionSerializer, AdminUnitSerializer, ProvinceSerializer, DistrictSerializer, WardSerializer   
@@ -23,6 +23,18 @@ class StatusOrderViewSet(viewsets.ModelViewSet):
     serializer_class = StatusOrderSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+class UserViewSet(viewsets.ViewSet,
+            generics.CreateAPIView,
+            generics.RetrieveAPIView):
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = UserSerializer
+    parser_classes = [MultiPartParser]
+    
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [permissions.IsAuthenticated()]
+        
+        return [permissions.AllowAny()]
 
 
 #Address

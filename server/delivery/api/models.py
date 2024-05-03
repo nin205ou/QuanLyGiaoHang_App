@@ -14,13 +14,10 @@ class Role(models.Model):
 class User(AbstractUser):
     role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
 
-    # Các trường dữ liệu chung
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
-    # Các trường dữ liệu riêng cho từng loại người dùng
     cccd = models.CharField(max_length=12, null=True, blank=True)  # Chỉ dành cho shipper
     address = models.CharField(max_length=255, null=True, blank=True)  # Chỉ dành cho customer
-    # Các trường dữ liệu riêng cho admin
     is_staff = models.BooleanField(default=False)  # Để quản lý quyền admin
 
     def __str__(self):

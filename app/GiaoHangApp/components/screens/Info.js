@@ -7,7 +7,7 @@ export default function Info({navigation}){
     <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
       <Text
          onPress={()=>navigation.navigation('Home')}
-         style={{fontSize:26,fontWeight:'bold'}}>Info</Text>
+         style={{fontSize:26,fontWeight:'bold'}}>Information</Text>
     </View>
   );
 }
