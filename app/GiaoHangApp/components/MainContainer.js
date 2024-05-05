@@ -7,10 +7,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Home from './screens/Home';
 import Login from './screens/Login';
 import Register from './screens/Register';
-// import Admin from './screens/Admin/Admin';
-// import DoanhThu from './screens/Admin/DoanhThu';
-// import QuanLyShipper from './screens/Admin/QLShipper';
-// import TrangThaiDonHang from './screens/Admin/TrangThaiDon';
+import Admin from './screens/Admin';
+import Shipper from './screens/Shipper';
+import User from './screens/User';
 import TaoMoiDH from './screens/TaoMoiDH';
 import Info from './screens/Info';
 import ThongKe from './screens/ThongKe';
@@ -65,10 +64,9 @@ export default function MainContainer() {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Register" component={Register} />
           <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
-          {/* <Stack.Screen name="Admin" component={Admin} />
-        <Stack.Screen name="DoanhThu" component={DoanhThu} />
-        <Stack.Screen name="QuanLyShipper" component={QuanLyShipper} />|
-       <Stack.Screen name="TrangThaiDonHang" component={TrangThaiDonHang} /> */}
+          <Stack.Screen name="Admin" component={Admin} />
+          <Stack.Screen name="Shipper" component={Shipper} />
+          <Stack.Screen name="User" component={User} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>
