@@ -15,6 +15,7 @@ import TaoMoiDH from './screens/TaoMoiDH';
 import Info from './screens/Info';
 import ThongKe from './screens/ThongKe';
 import DonHang from './screens/DonHang';
+import { AuthProvider } from '../context/authContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -54,18 +55,22 @@ const MainTabNavigator = () => (
 
 export default function MainContainer() {
   return (
-    <NavigationContainer>
-     
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen name="MainTab" component={MainTabNavigator} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
-        {/* <Stack.Screen name="Admin" component={Admin} />
+    <AuthProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false
+          }}>
+          <Stack.Screen name="MainTab" component={MainTabNavigator} />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Register" component={Register} />
+          <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
+          {/* <Stack.Screen name="Admin" component={Admin} />
         <Stack.Screen name="DoanhThu" component={DoanhThu} />
         <Stack.Screen name="QuanLyShipper" component={QuanLyShipper} />|
        <Stack.Screen name="TrangThaiDonHang" component={TrangThaiDonHang} /> */}
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthProvider>
   );
 }

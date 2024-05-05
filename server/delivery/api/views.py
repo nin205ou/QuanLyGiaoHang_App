@@ -16,7 +16,7 @@ class PaymentMethodViewSet(viewsets.ModelViewSet):
 class TypeDeliveryViewSet(viewsets.ModelViewSet):
     queryset = TypeDelivery.objects.all()
     serializer_class = TypeDeliverySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
     
 class StatusOrderViewSet(viewsets.ModelViewSet):
     queryset = StatusOrder.objects.all()

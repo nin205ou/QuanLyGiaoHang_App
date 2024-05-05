@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-6k!7i7h1no$&uvpf@=*-o%u$5r3^@=46gw0h+e-h8yt(+og(8!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '192.168.1.33',
+    '1960-2402-800-6315-c5ca-c0f4-855-a30b-4dbd.ngrok-free.app'
+]
 
 
 # Application definition
@@ -118,10 +122,15 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
-    ]
+    ],
+    'DEFAULT_PERMISSIONS_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
 }
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    "http://192.168.1.33",
+]
 
 AUTH_USER_MODEL = "api.User"
 
