@@ -36,6 +36,9 @@ export default function Login({ navigation }) {
   const handleRegister = () => {
     navigation.navigate('Register');
   };
+const handleAdmin = () => {
+    navigation.navigate('Admin');
+  }; 
 
   const validation = () => {
     if (username === '' || password === '') {
@@ -76,7 +79,7 @@ export default function Login({ navigation }) {
           <Text style={{ fontSize: 12, color: 'green', marginBottom: 8}} >Quên mật khẩu?</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={handleLogin} style={{ width: '100%', paddingTop: 10, paddingBottom: 10, backgroundColor: 'green', borderRadius: 5, alignItems: 'center' }}>
+      <TouchableOpacity onPress={handleAdmin} style={{ width: '100%', paddingTop: 10, paddingBottom: 10, backgroundColor: 'green', borderRadius: 5, alignItems: 'center' }}>
         <Text style={{ fontSize: 14, color: 'white' }}>Đăng nhập</Text>
       </TouchableOpacity>
       <Text style={{ fontSize: 12, color: 'gray', marginTop: 16 }} >Hoặc đăng nhập bằng</Text>
