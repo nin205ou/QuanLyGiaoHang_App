@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
 import PickerSelect from 'react-native-picker-select';
 import Toast from 'react-native-toast-message';
 import { AuthContext } from '../../context/authContext';
@@ -22,40 +22,25 @@ export default function Register({ navigation }) {
     if (validation()) {
       const formData = new FormData();
 
-      formData.append('first_name', fullName);
+      formData.append('first_name', fullName.substring(0, fullName.lastIndexOf(' ')));
+      formData.append('last_name', fullName.substring(fullName.lastIndexOf(' ') + 1));
       formData.append('username', userName);
       formData.append('email', email);
       formData.append('phone_number', phoneNumber);
       formData.append('address', address);
       formData.append('avatar', avatar);
-      // formData.append('cccd', cccd);
+      formData.append('cccd', cccd);
       formData.append('password', password);
-      formData.append('role', 2);
+      formData.append('role', userType);
 
       register(
         formData,
         () => {
           navigation.navigate('Login');
-          Toast.show({
-            type: 'success',
-            position: 'bottom',
-            text1: 'Đăng ký thành công',
-            visibilityTime: 2000,
-            autoHide: true,
-            topOffset: 30,
-            bottomOffset: 40,
-          });
+          ToastAndroid.showWithGravity('Đăng ký thành công', ToastAndroid.SHORT, ToastAndroid.BOTTOM)
         },
-        () => {
-          Toast.show({
-            type: 'error',
-            position: 'bottom',
-            text1: 'Đăng ký thất bại',
-            visibilityTime: 2000,
-            autoHide: true,
-            topOffset: 30,
-            bottomOffset: 40,
-          });
+        ( message ) => {
+          showToast(message, 'error');
         }
       );
     }
@@ -64,55 +49,36 @@ export default function Register({ navigation }) {
     navigation.navigate('Login');
   };
 
+  const showToast = (message, status, position = 'bottom') => {
+    Toast.show({
+      type: status,
+      position: position,
+      text1: message,
+      visibilityTime: 2000,
+      autoHide: true,
+      topOffset: 30,
+      bottomOffset: 40,
+    });
+  }
+
   const validation = () => {
     const phoneRegex = /^[0-9]{10}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
     if (fullName === '' || userName === '' || email === '' || phoneNumber === '' || address === '' || password === '' || confirmPassword === '' || userType === '') {
-      Toast.show({
-        type: 'error',
-        position: 'bottom',
-        text1: 'Vui lòng nhập đầy đủ thông tin',
-        visibilityTime: 2000,
-        autoHide: true,
-        topOffset: 30,
-        bottomOffset: 40,
-      });
+      showToast('Vui lòng nhập đầy đủ thông tin', 'error');
       return false;
     }
     if (!phoneRegex.test(phoneNumber)) {
-      Toast.show({
-        type: 'error',
-        position: 'bottom',
-        text1: 'Số điện thoại không hợp lệ',
-        visibilityTime: 2000,
-        autoHide: true,
-        topOffset: 30,
-        bottomOffset: 40,
-      });
+      showToast('Số điện thoại không hợp lệ', 'error');
       return false;
     }
     if (!emailRegex.test(email)) {
-      Toast.show({
-        type: 'error',
-        position: 'bottom',
-        text1: 'Email không hợp lệ',
-        visibilityTime: 2000,
-        autoHide: true,
-        topOffset: 30,
-        bottomOffset: 40,
-      });
+      showToast('Email không hợp lệ', 'error');
       return false;
     }
     if (password !== confirmPassword) {
-      Toast.show({
-        type: 'error',
-        position: 'bottom',
-        text1: 'Mật khẩu không khớp',
-        visibilityTime: 2000,
-        autoHide: true,
-        topOffset: 30,
-        bottomOffset: 40,
-      });
+      showToast('Mật khẩu không khớp', 'error');
       return false;
     }
     return true;
@@ -179,7 +145,7 @@ export default function Register({ navigation }) {
       />
       <PickerSelect
         placeholder={{ label: 'Chọn loại tài khoản', value: null }}
-        onValueChange={(value) => setUserType(value)}
+        onValueChange={(value) => setUserType(value === 'Customer' ? 2 : 3)}
         items={[
           { label: 'Khách hàng', value: 'Customer'},
           { label: 'Shipper', value: 'Shipper'},

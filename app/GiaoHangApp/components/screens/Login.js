@@ -10,6 +10,7 @@ export default function Login({ navigation }) {
   const { login } = React.useContext(AuthContext);
 
   const handleLogin = () => {
+    if (!validation()) return;
     login(
       username,
       password,
@@ -35,6 +36,24 @@ export default function Login({ navigation }) {
   const handleRegister = () => {
     navigation.navigate('Register');
   };
+
+  const validation = () => {
+    if (username === '' || password === '') {
+      Toast.show(
+        {
+          type: 'error',
+          position: 'bottom',
+          text1: 'Vui lòng nhập đầy đủ thông tin',
+          visibilityTime: 2000,
+          autoHide: true,
+          topOffset: 30,
+          bottomOffset: 40,
+        }
+      )
+      return false;
+    }
+    return true;
+  }
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingRight: 15, paddingLeft: 15 }}>

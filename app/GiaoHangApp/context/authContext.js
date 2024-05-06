@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [userInfor, setUserInfor] = useState({});
 
   const login = (username, password, onLoginSuccess, onLoginFailed) => {
-
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
@@ -73,16 +72,14 @@ export const AuthProvider = ({ children }) => {
     console.log(data);
     Apis.post(endpoints['register'], data, {
       headers: {
-        "Content-Type": 'multipart/formdata'
+        "Content-Type": 'multipart/form-data'
       }
     })
       .then(response => {
-        console.log(response);
-        // onRegisterSuccess();
         if (response.data.id) {
+          onRegisterSuccess();
         } else {
-          console.log(response.error);
-          onRegisterFailed("Register failed");
+          onRegisterFailed("Đăng ký thất bại!!!");
         }
       }
       ).catch(error => {
