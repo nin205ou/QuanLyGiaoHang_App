@@ -8,8 +8,11 @@ import Home from './screens/Home';
 import Login from './screens/Login';
 import Register from './screens/Register';
 import Admin from './screens/Admin';
+import MainTabAdmin from './screens/Admin';
 import Shipper from './screens/Shipper';
 import User from './screens/User';
+import QuanLyShipper from './screens/QuanLyShipper';
+import ThongBao from './screens/ThongBao';
 import TaoMoiDH from './screens/TaoMoiDH';
 import Info from './screens/Info';
 import ThongKe from './screens/ThongKe';
@@ -61,12 +64,15 @@ export default function MainContainer() {
             headerShown: false
           }}>
           <Stack.Screen name="MainTab" component={MainTabNavigator} />
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Register" component={Register} />
-          <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
-          <Stack.Screen name="Admin" component={Admin} />
-          <Stack.Screen name="Shipper" component={Shipper} />
-          <Stack.Screen name="User" component={User} />
+        <Stack.Screen name="MainTabAdmin" component={MainTabAdmin} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
+        <Stack.Screen name="Admin" component={Admin} />
+        <Stack.Screen name="Shipper" component={Shipper} />
+        <Stack.Screen name="User" component={User} />
+        <Stack.Screen name="QuanLyShipper" component={QuanLyShipper} />
+       <Stack.Screen name="ThongBao" component={ThongBao} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>
