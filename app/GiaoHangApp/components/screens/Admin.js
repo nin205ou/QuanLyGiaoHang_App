@@ -13,9 +13,19 @@ import ThongKe from './ThongKe';
 const Tab = createBottomTabNavigator();
 
 const Admin = ({ navigation }) => {
-  const handleLogin = () => {
-    navigation.navigate('Login');
+   const handleRegister = () => {
+    navigation.navigate('Register');
   };
+
+  const handleAdmin = () => {
+    navigation.navigate('Admin');
+  }; 
+  const handleShipper = () => {
+    navigation.navigate('Shipper');
+  }; 
+  const handleUser = () => {
+    navigation.navigate('User');
+  }; 
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
