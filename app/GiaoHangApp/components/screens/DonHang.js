@@ -1,78 +1,106 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
 export default function DonHang({ navigation }) {
- 
-  const handleTaoMoiDH = () => {
-    navigation.navigate('TaoMoiDH');
-  };
-
-  const data = [
+  const [data, setData] = useState([
     {
-      id: 1,
       maDonHang: 'DH001',
       ngayTao: '01/04/2024',
       thongTinGui: 'Người gửi 1 - Địa chỉ 1',
       thongTinNhan: 'Người nhận 1 - Địa chỉ 2',
       trangThai: 'Đang xử lý',
-      shipper: 'Shipper 1',
+      shipper: 'SH003',
     },
     {
-      id: 2,
       maDonHang: 'DH002',
       ngayTao: '02/04/2024',
       thongTinGui: 'Người gửi 2 - Địa chỉ 3',
       thongTinNhan: 'Người nhận 2 - Địa chỉ 4',
-      trangThai: 'Đã giao',
-      shipper: 'Shipper 2',
+      trangThai: 'Đang xử lý',
+      shipper: 'SH001',
     },
-  ];
+  ]);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(null);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text>Mã đơn hàng: {item.maDonHang}</Text>
-      <Text>Ngày tạo: {item.ngayTao}</Text>
-      <Text>Thông tin gửi: {item.thongTinGui}</Text>
-      <Text>Thông tin nhận: {item.thongTinNhan}</Text>
-      <Text>Trạng thái: {item.trangThai}</Text>
-      <Text>Shipper: {item.shipper}</Text>
-    </View>
+  const handleTaoMoiDH = () => {
+    navigation.navigate('TaoMoiDH');
+  };
+
+  const handleHoanThanhDH = () => {
+    if (selectedItemIndex !== null) {
+      const newData = data.map((item, index) => {
+        if (index === selectedItemIndex) {
+          return { ...item, trangThai: 'Đã giao' };
+        }
+        return item;
+      });
+      setData(newData);
+    }
+  };
+
+  const handleItemClick = (index) => {
+    setSelectedItemIndex(index);
+  };
+
+  const renderItem = ({ item, index }) => (
+    <TouchableOpacity onPress={() => handleItemClick(index)}>
+      <View style={[styles.row, selectedItemIndex === index && styles.selectedRow]}>
+        <Text style={styles.cell}>{index + 1}</Text>
+        <Text style={styles.cell}>{item.maDonHang}</Text>
+        <Text style={styles.cell}>{item.shipper}</Text>
+        <Text style={styles.cell}>{item.trangThai}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={{ flex: 1 }}>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-        style={{ paddingHorizontal: 10 }}
-      />
       <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
         <TouchableOpacity onPress={handleTaoMoiDH} style={{ marginRight: 10, padding: 10, backgroundColor: 'green', borderRadius: 5 }}>
-          <Text style={styles.buttonText}>Tạo mới</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>Tạo mới</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Hoàn Thành </Text>
+        <TouchableOpacity onPress={handleHoanThanhDH} style={{ marginRight: 10, padding: 10, backgroundColor: 'green', borderRadius: 5 }}>
+          <Text style={{ fontSize: 16, color: 'white' }}>Hoàn Thành</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.tableContainer}>
+        <View style={styles.row}>
+          <Text style={[styles.header, styles.cell]}>STT</Text>
+          <Text style={[styles.header, styles.cell]}>MÃ ĐƠN HÀNG</Text>
+          <Text style={[styles.header, styles.cell]}>MÃ SHIPPER</Text>
+          <Text style={[styles.header, styles.cell]}>TRẠNG THÁI ĐƠN</Text>
+        </View>
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    borderBottomWidth: 1,
+  tableContainer: {
+    margin: 20,
+  },
+  row: {
+    flexDirection: 'row',
+    borderBottomWidth: 2,
     borderColor: '#ccc',
-    paddingVertical: 10,
   },
-  button: {
-    backgroundColor: 'green',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+  selectedRow: {
+    backgroundColor: 'lightblue',
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
+  header: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  cell: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRightWidth: 2,
+    borderColor: '#ccc',
+    textAlign: 'center',
   },
 });
