@@ -35,7 +35,7 @@ const Admin = ({ navigation }) => {
           placeholder="Mã Vận đơn ..."
         />
         <TouchableOpacity onPress={() => alert("Chưa nhập nội dung !!!")} style={{ padding: 10, backgroundColor: 'green' }}>
-          <Text style={{ fontSize: 16, color: 'blue' }}>Search</Text>
+          <Text style={{ fontSize: 16, color: 'white' }}>Search</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={{ position: 'absolute', top: 30, right: 20, marginLeft: 5 }} onPress={handleLogin}>
