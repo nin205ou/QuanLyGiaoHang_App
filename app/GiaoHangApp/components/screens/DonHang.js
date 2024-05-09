@@ -52,10 +52,7 @@ export default function DonHang({ navigation }) {
           <Text style={styles.buttonText}>Tạo mới</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Xóa</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sửa</Text>
+          <Text style={styles.buttonText}>Hoàn Thành </Text>
         </TouchableOpacity>
       </View>
     </View>
