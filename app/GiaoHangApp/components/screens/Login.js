@@ -39,6 +39,12 @@ export default function Login({ navigation }) {
 const handleAdmin = () => {
     navigation.navigate('Admin');
   }; 
+ const handleShipper = () => {
+    navigation.navigate('Shipper');
+  }; 
+  const handleUser = () => {
+    navigation.navigate('User');
+  }; 
 
   const validation = () => {
     if (username === '' || password === '') {
