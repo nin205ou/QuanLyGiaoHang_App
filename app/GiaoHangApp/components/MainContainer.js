@@ -10,7 +10,9 @@ import Register from './screens/Register';
 import Admin from './screens/Admin';
 import MainTabAdmin from './screens/Admin';
 import Shipper from './screens/Shipper';
+import MainTabShipper from './screens/Shipper';
 import User from './screens/User';
+import MainTabUser from './screens/User';
 import QuanLyShipper from './screens/QuanLyShipper';
 import ThongBao from './screens/ThongBao';
 import TaoMoiDH from './screens/TaoMoiDH';
@@ -63,8 +65,10 @@ export default function MainContainer() {
           screenOptions={{
             headerShown: false
           }}>
-          <Stack.Screen name="MainTab" component={MainTabNavigator} />
+        <Stack.Screen name="MainTab" component={MainTabNavigator} />
         <Stack.Screen name="MainTabAdmin" component={MainTabAdmin} />
+        <Stack.Screen name="MainTabShipper" component={MainTabShipper} />
+        <Stack.Screen name="MainTabUser" component={MainTabUser} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
