@@ -20,7 +20,7 @@
     "expo-image-picker": "^14.7.1",
     "expo-status-bar": "~1.11.1",
     "react": "18.2.0",
-    "react-native": "0.73.6",
+    "react-native": "0.73.7",
     "react-native-picker-select": "^9.1.3",
     "react-native-toast-message": "^2.2.0",
     "react-native-vector-icons": "^10.0.3",
