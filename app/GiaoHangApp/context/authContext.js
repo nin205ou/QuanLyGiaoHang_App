@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import Apis, { authApi, endpoints } from "../Apis";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
 
 export const AuthContext = createContext();
 
@@ -17,37 +16,37 @@ export const AuthProvider = ({ children }) => {
     formData.append('client_id', 'AENcdHOHsUoIgOSKLSNtH5pIZbbJzWhLodGkgCRt');
     formData.append('client_secret', 'GxDX99jOIbBwIeS0YmsSlKV0ltFrO1ZrxUIcV8nhUffz8qA7jd6ouLH1lCkBWU8aSU08qlB2dDhpndKdg6Rb2e9NyQER4MimQyndabuJNGVToplN9jMLh8Rq9bFTOlrm');
 
-    const config = {
+    const configLogin = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     };
 
-    Apis.post(endpoints['login'], formData, config)
-      .then(response => {
-        console.log(response.data);
+    Apis.post(endpoints['login'], formData, configLogin)
+      .then( async response => {
         if (response.data.access_token) {
           setUserToken(response.data.access_token);
-          setUserInfor({ username });
-          AsyncStorage.setItem('userToken', response.data.access_token);
-          AsyncStorage.setItem('userInfor', JSON.stringify({ username }));
+          await AsyncStorage.setItem('userToken', response.data.access_token);
+          const user = await authApi(response.data.access_token).get(endpoints['current_user']);
+          setUserInfor({ userId: user.data.id, userName: user.data.username, role: user.data.role });
+          await AsyncStorage.setItem('userInfor', JSON.stringify({ userName: user.data.username, role: user.data.role, userId: user.data.id }));
           onLoginSuccess();
         } else {
-          console.log(response.error);
-          onLoginFailed("Login failed");
+          onLoginFailed(response.data);
         }
       }
       ).catch(error => {
-        onLoginFailed(error.message);
+        let errorMessage = error.response.data.error_description || error.response.data.error || error.message;
+        onLoginFailed(errorMessage);
       });
   };
 
-  const logout = (onLogoutSuccess, onLogoutFailed) => {
+  const logout = async (onLogoutSuccess, onLogoutFailed) => {
     try {
       setUserToken(null);
       setUserInfor({});
-      AsyncStorage.removeItem('userToken');
-      AsyncStorage.removeItem('userInfor');
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('userInfor');
       onLogoutSuccess();
     } catch (error) {
       onLogoutFailed(error.message);
@@ -69,12 +68,13 @@ export const AuthProvider = ({ children }) => {
   }
 
   const register = (data, onRegisterSuccess, onRegisterFailed) => {
-    console.log(data);
-    Apis.post(endpoints['register'], data, {
+    const configRegister = {
       headers: {
-        "Content-Type": 'multipart/form-data'
+        'Content-Type': 'multipart/form-data'
       }
-    })
+    };
+
+    Apis.post(endpoints['register'], data, configRegister)
       .then(response => {
         if (response.data.id) {
           onRegisterSuccess();
@@ -83,7 +83,8 @@ export const AuthProvider = ({ children }) => {
         }
       }
       ).catch(error => {
-        onRegisterFailed(error.message);
+        let errorMessage = error.response.data.error_description || error.response.data.error || error.message;
+        onRegisterFailed(errorMessage);
       });
   }
 

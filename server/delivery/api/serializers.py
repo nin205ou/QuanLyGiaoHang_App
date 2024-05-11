@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import PaymentMethod, TypeDelivery, StatusOrder, User
+from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Role, Order, Auction, Bid
 from .models import AdministrativeRegion, AdministrativeUnit, Province, District, Ward, HomeNumber
 
 class PaymentMethodSerializer(ModelSerializer):
@@ -17,6 +17,11 @@ class StatusOrderSerializer(ModelSerializer):
         model = StatusOrder
         fields = ['code', 'name']
         
+class RoleSerializer(ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ['name', 'description']
+        
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
@@ -26,7 +31,21 @@ class UserSerializer(ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+       
+class AuctionSerializer(ModelSerializer):
+    class Meta:
+        model = Auction
+        fields = '__all__'
         
+class BidSerializer(ModelSerializer):
+    class Meta:
+        model = Bid
+        fields = '__all__'
+
+class OrderSerializer(ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__' 
         
 #Address
 class AdminRegionSerializer(ModelSerializer):

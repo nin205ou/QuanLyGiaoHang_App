@@ -3,36 +3,46 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import Home from './screens/Home';
-import Login from './screens/Login';
-import Register from './screens/Register';
-import Admin from './screens/Admin';
-import Shipper from './screens/Shipper';
-import User from './screens/User';
-import TaoMoiDH from './screens/TaoMoiDH';
-import Info from './screens/Info';
-import ThongKe from './screens/ThongKe';
-import DonHang from './screens/DonHang';
-import { AuthProvider } from '../context/authContext';
+import {
+  Home,
+  Login,
+  Register,
+  Admin,
+  Shipper,
+  User,
+  TaoMoiDH,
+  Info,
+  ThongKe,
+  DonHang,
+  Auctioning
+} from './screens/';
+
+import { AuthProvider, AuthContext } from '../context/authContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const MainTabNavigator = () => (
-  <Tab.Navigator
+const MainTabNavigator = () => {
+  const { userInfor } = React.useContext(AuthContext);
+
+  return (
+    <Tab.Navigator
     screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
 
         if (route.name === 'Home') {
           iconName = focused ? 'home' : 'home-outline';
-        } else if (route.name === 'Info') {
+        } else if (route.name === 'Infor') {
           iconName = focused ? 'information-circle' : 'information-circle-outline';
         } else if (route.name === 'DonHang') {
           iconName = focused ? 'basket' : 'basket-outline';
         } else if (route.name === 'ThongKe') {
           iconName = focused ? 'stats-chart' : 'stats-chart-outline';
+        } else if (route.name === 'Auctioning') {
+          return <Icon name='gavel' size={size} color={color} />
         }
 
         return <Ionicons name={iconName} size={size} color={color} />;
@@ -46,11 +56,13 @@ const MainTabNavigator = () => (
     }}
   >
     <Tab.Screen name="Home" component={Home} />
-    <Tab.Screen name="Info" component={Info} />
-    <Tab.Screen name="DonHang" component={DonHang} />
-    <Tab.Screen name="ThongKe" component={ThongKe} />
+    {userInfor.role == 1 && <Tab.Screen name="ThongKe" component={ThongKe} />}
+    {userInfor.role == 2 && <Tab.Screen name="DonHang" component={DonHang} />}
+    {userInfor.role == 3 && <Tab.Screen name="Auctioning" component={Auctioning} />}
+    <Tab.Screen name="Infor" component={Info} />
   </Tab.Navigator>
-);
+  )
+};
 
 export default function MainContainer() {
   return (

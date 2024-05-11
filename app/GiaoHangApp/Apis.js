@@ -1,11 +1,13 @@
 import axios from "axios";
 
-const root_api = 'https://00b6-2402-800-6315-c5ca-e1f2-ac70-8fb2-8f8.ngrok-free.app'
+const root_api = 'https://3439-2402-800-6314-c783-e9d0-e28f-3a2f-4ef5.ngrok-free.app'
 
 export const endpoints = {
     'login': 'o/token/',
     'register': 'api/users/',
-
+    'current_user': 'api/users/current_user/',
+    'auctions': 'api/auctions/',
+    'payment_methods': 'api/payment_methods/',
 }
 
 export const authApi = (accessToken) => axios.create(

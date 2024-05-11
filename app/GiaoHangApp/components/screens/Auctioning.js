@@ -3,11 +3,11 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, RefreshControl } fr
 import Apis, { authApi, endpoints } from "../../Apis";
 import { AuthContext } from '../../context/authContext';
 import { Toast, showToast } from '../../static/js/toast';
-import OrderItem from '../static/OrderItem';
+import Auction from '../static/AuctionItem';
 
-export default function DonHang({ navigation }) {
+export default function Auctioning({ navigation }) {
   const [data, setData] = React.useState([]);
-  const [alert, setAlert] = React.useState('Bạn chưa có đơn hàng nào');
+  const [alert, setAlert] = React.useState('Không có buổi đấu giá nào đang diễn ra');
   const [refreshing, setRefreshing] = React.useState(false);
   const { userToken, userInfor } = React.useContext(AuthContext)
 
@@ -19,10 +19,10 @@ export default function DonHang({ navigation }) {
     try {
       if (!userToken || !userInfor) {
         setData([]);
-        setAlert('Vui lòng đăng nhập để xem đơn hàng của bạn');
+        setAlert('Vui lòng đăng nhập để xem các buối đấu giá đang diễn ra');
         showToast(alert, 'error');
       } else {
-        authApi(userToken).get(endpoints['auctions'] + '?userId=' + userInfor.userId)
+        authApi(userToken).get(endpoints['auctions'] + '?isAuctioning=True')
           .then(response => {
             setData(response.data);
           })
@@ -56,7 +56,7 @@ export default function DonHang({ navigation }) {
           <FlatList
             data={data}
             keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => <OrderItem item={item} />}
+            renderItem={({ item }) => <Auction item={item} />}
             refreshControl={
               <RefreshControl
                 refreshing={false}
@@ -71,11 +71,11 @@ export default function DonHang({ navigation }) {
         )
 
       }
-      <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20, justifyContent: 'flex-end' }}>
+      {/* <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20, justifyContent: 'flex-end' }}>
         <TouchableOpacity onPress={handleTaoMoiDH} style={{ marginBottom: 10, marginRight: 10, padding: 10, backgroundColor: 'green', borderRadius: 50 }}>
           <Text style={styles.buttonText}>Tạo đơn</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <Toast />
     </View>
   );

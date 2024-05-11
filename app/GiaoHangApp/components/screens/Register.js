@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
 import PickerSelect from 'react-native-picker-select';
-import Toast from 'react-native-toast-message';
 import { AuthContext } from '../../context/authContext';
+import { Toast, showToast } from '../../static/js/toast';
+import * as formValidate from '../../static/js/validationFunc'
+import Button from '../static/Button'
 
 export default function Register({ navigation }) {
   const [fullName, setFullName] = useState('');
@@ -36,8 +38,10 @@ export default function Register({ navigation }) {
       register(
         formData,
         () => {
-          navigation.navigate('Login');
-          ToastAndroid.showWithGravity('Đăng ký thành công', ToastAndroid.SHORT, ToastAndroid.BOTTOM)
+          showToast('Đăng ký thành công', 'success')
+          setTimeout(() => {
+            navigation.navigate('Login');
+          }, 2100);
         },
         ( message ) => {
           showToast(message, 'error');
@@ -45,35 +49,29 @@ export default function Register({ navigation }) {
       );
     }
   };
+
   const handleLogin = () => {
     navigation.navigate('Login');
   };
 
-  const showToast = (message, status, position = 'bottom') => {
-    Toast.show({
-      type: status,
-      position: position,
-      text1: message,
-      visibilityTime: 2000,
-      autoHide: true,
-      topOffset: 30,
-      bottomOffset: 40,
-    });
-  }
-
   const validation = () => {
-    const phoneRegex = /^[0-9]{10}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
     if (fullName === '' || userName === '' || email === '' || phoneNumber === '' || address === '' || password === '' || confirmPassword === '' || userType === '') {
       showToast('Vui lòng nhập đầy đủ thông tin', 'error');
       return false;
     }
-    if (!phoneRegex.test(phoneNumber)) {
+    if (userType == 3) {
+      let cccdValidationMessage = formValidate.cccdValidation(cccd);
+      if (cccdValidationMessage != 'Validated') {
+        showToast(cccdValidationMessage, 'error');
+        return false;
+      }
+    }
+    
+    if (!formValidate.phoneValidation(phoneNumber)) {
       showToast('Số điện thoại không hợp lệ', 'error');
       return false;
     }
-    if (!emailRegex.test(email)) {
+    if (!formValidate.emailValidation(email)) {
       showToast('Email không hợp lệ', 'error');
       return false;
     }
@@ -126,7 +124,7 @@ export default function Register({ navigation }) {
         onChangeText={text => setPassword(text)}
       />
       {
-        (userType === 'Shipper') && (
+        (userType === 3) && (
           <TextInput
             placeholder="Số CCCD"
             style={{ width: '100%', height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 }}
@@ -152,9 +150,7 @@ export default function Register({ navigation }) {
         ]}
         style={{ inputAndroid: { width: '100%', height: 40, borderWidth: 1, borderColor: 'gray', marginBottom: 10, paddingHorizontal: 10 } }}
       />
-     <TouchableOpacity onPress={handleRegister} style={{ width: '100%', paddingTop: 10, paddingBottom: 10, backgroundColor: 'green', borderRadius: 5, alignItems: 'center' }}>
-        <Text style={{ fontSize: 14, color: 'white' }}>Đăng ký</Text>
-      </TouchableOpacity>
+      <Button title="Đăng ký" onPress={handleRegister} />
       <View style={{marginTop: 20, flexDirection:'row'}}>
         <Text style={{ fontSize: 12}}>Đã có tài khoản? </Text>
         <TouchableOpacity onPress={handleLogin}>

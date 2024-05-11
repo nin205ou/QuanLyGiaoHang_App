@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
 from django.forms import ValidationError
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 # Create your models here.
 class Role(models.Model):
@@ -16,9 +18,9 @@ class User(AbstractUser):
 
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
-    cccd = models.CharField(max_length=12, null=True, blank=True)  # Chỉ dành cho shipper
-    address = models.CharField(max_length=255, null=True, blank=True)  # Chỉ dành cho customer
-    is_staff = models.BooleanField(default=False)  # Để quản lý quyền admin
+    cccd = models.CharField(max_length=12, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    is_staff = models.BooleanField(default=False) 
 
     def __str__(self):
         return self.username
@@ -55,19 +57,27 @@ class Auction(BaseModel):
     description = models.TextField('description', null=True)
     weight = models.DecimalField('weight', max_digits=10, decimal_places=2)
     collection = models.IntegerField('collection')
-    image = CloudinaryField('image_auctions', null=True)
+    # image = CloudinaryField('image_auctions', null=True)
+    image = models.ImageField(upload_to='actions/', null=True, blank=True)
     source = models.CharField('source', max_length=255)
     destination = models.CharField('destination', max_length=255)
     phone_number_giver = models.CharField('phone_number_giver', max_length=15)
-    start_time = models.DateTimeField('start_time')
-    end_time = models.DateTimeField('end_time')
+    start_time = models.DateTimeField('start_time', auto_now_add=True)
+    end_time = models.DateTimeField('end_time', default= timezone.now() + timedelta(hours=12))
     start_price = models.DecimalField('start_price', max_digits=10, decimal_places=2)
     current_price = models.DecimalField('current_price', max_digits=10, decimal_places=2)
     type_payment = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, related_name='auctions_payment_methods')
-    winner_shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auctions_winner', null=True)
+    winner_shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auctions_winner', null=True, blank=True)
     status = models.BooleanField('status', default=True)
     priority = models.IntegerField('priority', default=0)
     
+    def save(self, *args, **kwargs):
+        if self.start_time:
+            twelve_hours_after_start = self.start_time + timedelta(minutes=4)
+            if timezone.now() > twelve_hours_after_start:
+                self.status = False
+        super().save(*args, **kwargs)
+         
     def __str__(self):
         return self.name
     

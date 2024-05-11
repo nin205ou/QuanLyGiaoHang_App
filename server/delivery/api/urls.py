@@ -8,6 +8,9 @@ router.register('payment_methods', views.PaymentMethodViewSet)
 router.register('type_delivery', views.TypeDeliveryViewSet)
 router.register('status_order', views.StatusOrderViewSet)
 router.register('users', views.UserViewSet)
+router.register('auctions', views.AuctionViewSet)
+router.register('bids', views.BidViewSet)
+router.register('orders', views.OrderViewSet)
 
 #Address
 router.register('admin_region', views.AdminRegionViewSet)
