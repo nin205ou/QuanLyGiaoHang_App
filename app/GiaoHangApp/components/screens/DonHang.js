@@ -77,24 +77,36 @@ export default function DonHang({ navigation }) {
         </TouchableOpacity>
       </View>
       <Toast />
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    paddingVertical: 10,
+  tableContainer: {
+    margin: 20,
   },
-  button: {
-    backgroundColor: 'green',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+  row: {
+    flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderColor: '#ccc',
+  },
+  selectedRow: {
+    backgroundColor: 'lightblue',
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
-  }
+  },
+  header: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  cell: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRightWidth: 2,
+    borderColor: '#ccc',
+    textAlign: 'center',
+  },
 });

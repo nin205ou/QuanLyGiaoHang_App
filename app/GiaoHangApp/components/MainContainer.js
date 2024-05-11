@@ -72,13 +72,18 @@ export default function MainContainer() {
           screenOptions={{
             headerShown: false
           }}>
-          <Stack.Screen name="MainTab" component={MainTabNavigator} />
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Register" component={Register} />
-          <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
-          <Stack.Screen name="Admin" component={Admin} />
-          <Stack.Screen name="Shipper" component={Shipper} />
-          <Stack.Screen name="User" component={User} />
+        <Stack.Screen name="MainTab" component={MainTabNavigator} />
+        <Stack.Screen name="MainTabAdmin" component={MainTabAdmin} />
+        <Stack.Screen name="MainTabShipper" component={MainTabShipper} />
+        <Stack.Screen name="MainTabUser" component={MainTabUser} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="TaoMoiDH" component={TaoMoiDH} />
+        <Stack.Screen name="Admin" component={Admin} />
+        <Stack.Screen name="Shipper" component={Shipper} />
+        <Stack.Screen name="User" component={User} />
+        <Stack.Screen name="QuanLyShipper" component={QuanLyShipper} />
+       <Stack.Screen name="ThongBao" component={ThongBao} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>
