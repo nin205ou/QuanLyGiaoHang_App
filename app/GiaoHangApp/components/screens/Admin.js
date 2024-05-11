@@ -5,10 +5,12 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import QuanLyShipper from './QuanLyShipper';
-import DonHang from './DonHang';
-import ThongBao from './ThongBao';
-import ThongKe from './ThongKe';
+import {
+  QuanLyShipper,
+  DonHang,
+  ThongBao,
+  ThongKe
+} from './index'
 
 const Tab = createBottomTabNavigator();
 
@@ -38,7 +40,7 @@ const Admin = ({ navigation }) => {
           <Text style={{ fontSize: 16, color: 'white' }}>Search</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={{ position: 'absolute', top: 30, right: 20, marginLeft: 5 }} onPress={handleLogin}>
+      <TouchableOpacity style={{ position: 'absolute', top: 30, right: 20, marginLeft: 5 }} onPress={handleAdmin}>
         <Text style={{ fontSize: 16, color: 'blue' }}>Logout</Text>
       </TouchableOpacity>
     </View>

@@ -108,24 +108,19 @@ class OrderViewSet(viewsets.ModelViewSet):
 class AdminRegionViewSet(viewsets.ModelViewSet):
     queryset = AdministrativeRegion.objects.order_by('name')
     serializer_class = AdminRegionSerializer
-    permission_classes = [permissions.IsAuthenticated]
     
 class AdminUnitViewSet(viewsets.ModelViewSet):
     queryset = AdministrativeUnit.objects.order_by('full_name')
     serializer_class = AdminUnitSerializer
-    permission_classes = [permissions.IsAuthenticated]
     
 class ProvinceViewSet(viewsets.ModelViewSet):
     queryset = Province.objects.order_by('name')
     serializer_class = ProvinceSerializer
-    permission_classes = [permissions.IsAuthenticated]
     
 class DistrictViewSet(viewsets.ModelViewSet):
     queryset = District.objects.order_by('name')
     serializer_class = DistrictSerializer
-    permission_classes = [permissions.IsAuthenticated]
     
 class WardViewSet(viewsets.ModelViewSet):
     queryset = Ward.objects.order_by('name')
     serializer_class = WardSerializer
-    permission_classes = [permissions.IsAuthenticated]

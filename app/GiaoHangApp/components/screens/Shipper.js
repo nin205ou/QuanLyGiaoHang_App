@@ -5,9 +5,11 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import DonHang from './DonHang';
-import ThongBao from './ThongBao';
-import ThongKe from './ThongKe';
+import {
+  DonHang,
+  ThongBao,
+  ThongKe
+} from './index'
 
 const Tab = createBottomTabNavigator();
 

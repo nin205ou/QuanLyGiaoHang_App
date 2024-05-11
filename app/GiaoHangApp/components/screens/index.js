@@ -9,6 +9,8 @@ import Info from './Info'
 import ThongKe from './ThongKe'
 import DonHang from './DonHang'
 import Auctioning from './Auctioning'
+import QuanLyShipper from './QuanLyShipper'
+import ThongBao from './ThongBao'
 
 export {
     Home,
@@ -21,5 +23,7 @@ export {
     Info,
     ThongKe,
     DonHang,
-    Auctioning
+    Auctioning,
+    QuanLyShipper,
+    ThongBao
 }

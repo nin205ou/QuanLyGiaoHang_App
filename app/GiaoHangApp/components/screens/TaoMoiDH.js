@@ -23,7 +23,7 @@ export default function TaoMoiDH({ navigation }) {
   const { userToken, userInfor } = React.useContext(AuthContext);
 
   const fetchPaymentMethods = async () => {
-    const response = await Apis.get(endpoints['payment_methods']);
+    const response = await authApi(userToken).get(endpoints['payment_methods']);
     setPaymentMethods(response.data);
   }
 
@@ -42,8 +42,6 @@ export default function TaoMoiDH({ navigation }) {
   }
 
   const handleSubmit = async () => {
-    console.log('userToken:', userToken);
-    console.log('userInfor:', userInfor);
     if (!userInfor.userId) {
       showToast('Vui lòng đăng nhập để tạo đơn hàng', 'error');
       return;
@@ -80,7 +78,7 @@ export default function TaoMoiDH({ navigation }) {
       if (response.data.id) {
         showToast('Tạo đơn hàng thành công', 'success');
         setTimeout(() => {
-          navigation.navigate('Order');
+          navigation.navigate('DonHang');
         }, 2100);
       }
     } catch (error) {
