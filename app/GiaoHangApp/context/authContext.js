@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     Apis.post(endpoints['login'], formData, configLogin)
-      .then( async response => {
+      .then(async response => {
         if (response.data.access_token) {
           setUserToken(response.data.access_token);
           await AsyncStorage.setItem('userToken', response.data.access_token);
@@ -88,6 +88,28 @@ export const AuthProvider = ({ children }) => {
       });
   }
 
+  const sendOTP = (email, onSendOTPSuccess, onSendOTPFailed) => {
+    const configSendOTP = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    Apis.post(endpoints['otps'], {
+      email: email
+    }, configSendOTP)
+      .then(response => {
+        if (response.status === 201) {
+          onSendOTPSuccess();
+        } else {
+          onSendOTPFailed("Gửi mã OTP thất bại!!!");
+        }
+      }
+      ).catch(error => {
+        onSendOTPFailed(error.response.data.message);
+      });
+  }
+
   useEffect(() => checkLogin, [])
 
   const authContextValue = {
@@ -95,7 +117,8 @@ export const AuthProvider = ({ children }) => {
     userInfor,
     login,
     logout,
-    register
+    register,
+    sendOTP
   };
 
   return (

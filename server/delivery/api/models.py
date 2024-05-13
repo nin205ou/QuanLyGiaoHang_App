@@ -35,8 +35,20 @@ class User(AbstractUser):
             # Gán vai trò mặc định khi tạo superuser
             self.role_id = Role.objects.get(name='Customer').id
         super().save(*args, **kwargs)
+
+class OTP(models.Model):
+    email = models.EmailField()
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expired_at = models.DateTimeField(default=timezone.now() + timedelta(minutes=15))
+    status = models.BooleanField('status', default=True)
     
-  
+    def __str__(self):
+        return self.otp
+    
+    def is_valid(self):
+        return self.expired_at > timezone.now()
+        
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

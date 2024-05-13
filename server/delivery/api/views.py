@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.utils import timezone
+from .utils.email import send_email
+from .utils.otp import generate_otp
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.parsers import MultiPartParser
-from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Role, Auction, Bid, Order
-from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, StatusOrderSerializer, UserSerializer, RoleSerializer, AuctionSerializer, BidSerializer, OrderSerializer
+from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Role, Auction, Bid, Order, OTP
+from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, StatusOrderSerializer, UserSerializer, RoleSerializer, AuctionSerializer, BidSerializer, OrderSerializer, OTPSerializer
 
 from .models import AdministrativeRegion, AdministrativeUnit, Province, District, Ward
 from .serializers import AdminRegionSerializer, AdminUnitSerializer, ProvinceSerializer, DistrictSerializer, WardSerializer   
@@ -45,6 +47,48 @@ class UserViewSet(viewsets.ViewSet,
             "request": request
         }).data, status=status.HTTP_200_OK)
 
+class OTPViewSet(viewsets.ModelViewSet):
+    queryset = OTP.objects.all()
+    serializer_class = OTPSerializer
+    
+    def get_queryset(self):
+        return OTP.objects.filter(user=self.request.user)
+    
+    def create(self, request, *args, **kwargs):
+        email = request.data.get('email')
+
+        if User.objects.filter(email=email).exists():
+            return Response({'message': 'Email đã được đăng ký', 'code': 'email_exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        otp = OTP.objects.create(otp=generate_otp(), email=email) 
+        send_email("Mã xác thực OTP", "otp_email.html", {"otp": otp}, email)
+        return Response({'message': 'Gửi mã OTP thành công', 'code': 'created'}, status=status.HTTP_201_CREATED)
+    
+    @action(methods=['post'], detail=False)
+    def verify_email(self, request):
+        otp = request.data.get('otp')
+        email = request.data.get('email')
+        role = request.data.get('role')
+        user_name = request.data.get('user_name')
+        
+        try:
+            otp = OTP.objects.get(email=email, otp=otp)
+        except OTP.DoesNotExist:
+            return Response({'message': 'Mã OTP không hợp lệ', 'code': 'invalid_otp'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not otp.is_valid():
+            return Response({'message': 'Mã OTP đã hết hạn', 'code': 'expired_otp'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        otp.status = False
+        otp.save()
+        
+        if role == 2:
+            send_email("Chào mừng bạn đến với hệ thống giao hàng", "welcome_customer_email.html", {"username": user_name}, email)
+        else:
+            send_email("Chào mừng bạn đến với hệ thống giao hàng", "welcome_shipper_email.html", {"username": user_name}, email)
+            
+        return Response({'message': 'Xác thực thành công', 'code': 'success'}, status=status.HTTP_200_OK)
+    
 class AuctionViewSet(viewsets.ModelViewSet):
     queryset = Auction.objects.all()
     serializer_class = AuctionSerializer
@@ -70,11 +114,11 @@ class AuctionViewSet(viewsets.ModelViewSet):
         try:
             shipper = User.objects.get(id=shipper_id)
         except User.DoesNotExist:
-            return Response({'error': 'Shipper not found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Không tìm thấy shipper.', 'code' : 'shipper_not_found'}, status=status.HTTP_400_BAD_REQUEST)
         
         auction.winner_shipper = shipper
         auction.save()
-        return Response({'message': 'Winner shipper selected successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Chọn shipper chiến thắng thành công.', 'code': 'success'}, status=status.HTTP_200_OK)
     
 class BidViewSet(viewsets.ModelViewSet):
     queryset = Bid.objects.all()
@@ -100,27 +144,27 @@ class BidViewSet(viewsets.ModelViewSet):
         
         if bid_price<=0:
             return Response({
-                'success': False,
-                'message': 'Giá đấu không hợp lệ.'
+                'message': 'Giá đấu không hợp lệ.',
+                'code' : 'invalid_bid_price'
             }, status=status.HTTP_400_BAD_REQUEST)
             
         if bid_price < 1000:
             return Response({
-                'success': False,
-                'message': 'Giá đấu phải lớn hơn 1000.'
+                'message': 'Giá đấu phải lớn hơn 1000.',
+                'code' : 'price_too_high'
             }, status=status.HTTP_400_BAD_REQUEST)
             
         if bid_price % 1000 != 0:
             return Response({
-                'success': False,
-                'message': 'Giá đấu không chẵn (phải chia hết cho 1000).'
+                'message': 'Giá đấu không chẵn (phải chia hết cho 1000).',
+                'code' : 'price_not_even'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.get(id=user_id)
         if str(user.role) != "Shipper":
             return Response({
-                'success': False,
-                'message': 'Chỉ shipper mới được tham gia đấu giá.'
+                'message': 'Chỉ shipper mới được tham gia đấu giá.',
+                'code' : 'just_shipper_can_auction'
             }, status=status.HTTP_400_BAD_REQUEST)
         
         auction = Auction.objects.get(id=auction_id)
@@ -128,8 +172,8 @@ class BidViewSet(viewsets.ModelViewSet):
         # Kiểm tra giá thầu
         if bid_price >= auction.current_price:
             return Response({
-                'success': False,
-                'message': 'Giá đấu phải nhỏ hơn giá hiện tại.'
+                'message': 'Giá đấu phải nhỏ hơn giá hiện tại.',
+                'code' : 'must_lower_than_current_price'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         auction.current_price = bid_price
@@ -138,8 +182,8 @@ class BidViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response({
-                'success': True,
                 'message': 'Đấu giá thành công',
+                'code' : 'success',
                 'data': serializer.data
             }, status=status.HTTP_201_CREATED, headers=headers)
     

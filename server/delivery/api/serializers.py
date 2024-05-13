@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Role, Order, Auction, Bid
+from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Role, Order, Auction, Bid, OTP
 from .models import AdministrativeRegion, AdministrativeUnit, Province, District, Ward, HomeNumber
 
 class PaymentMethodSerializer(ModelSerializer):
@@ -32,7 +32,12 @@ class UserSerializer(ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-       
+
+class OTPSerializer(ModelSerializer):
+    class Meta:
+        model = OTP
+        fields = '__all__'
+
 class AuctionSerializer(ModelSerializer):
     user_name = serializers.SerializerMethodField()
     shipper_joining = serializers.SerializerMethodField()

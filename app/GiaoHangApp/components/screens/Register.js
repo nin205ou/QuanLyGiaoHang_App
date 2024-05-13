@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/authContext';
 import { Toast, showToast } from '../../static/js/toast';
 import * as formValidate from '../../static/js/validationFunc'
 import Button from '../static/Button'
+import Apis, { endpoints } from '../../Apis';
 
 export default function Register({ navigation }) {
   const [fullName, setFullName] = useState('');
@@ -17,36 +18,27 @@ export default function Register({ navigation }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userType, setUserType] = useState('');
+  const [otp, setOTP] = useState('');
+  const [isSentOTP, setIsSentOTP] = useState(false);
 
-  const { register } = React.useContext(AuthContext)
+  const { register, sendOTP } = React.useContext(AuthContext)
 
   const handleRegister = () => {
     if (validation()) {
-      const formData = new FormData();
-
-      formData.append('first_name', fullName.substring(0, fullName.lastIndexOf(' ')));
-      formData.append('last_name', fullName.substring(fullName.lastIndexOf(' ') + 1));
-      formData.append('username', userName);
-      formData.append('email', email);
-      formData.append('phone_number', phoneNumber);
-      formData.append('address', address);
-      formData.append('avatar', avatar);
-      formData.append('cccd', cccd);
-      formData.append('password', password);
-      formData.append('role', userType);
-
-      register(
-        formData,
-        () => {
-          showToast('Đăng ký thành công', 'success')
-          setTimeout(() => {
-            navigation.navigate('Login');
-          }, 2100);
-        },
-        ( message ) => {
-          showToast(message, 'error');
-        }
-      );
+      if (!isSentOTP) {
+        sendOTP(
+          email,
+          () => {
+            setIsSentOTP(true);
+            showToast('OTP đã được gửi đến email của bạn', 'success');
+          },
+          (message) => {
+            showToast(message, 'error');
+          }
+        )
+      } else {
+        showToast('Vui lòng xác minh OTP', 'error')
+      }
     }
   };
 
@@ -54,11 +46,77 @@ export default function Register({ navigation }) {
     navigation.navigate('Login');
   };
 
+  const handleVerifyOTP = async () => {
+    let otpValidationMessage = formValidate.otpValidation(otp);
+    if (otpValidationMessage != 'Validated') {
+      showToast(otpValidationMessage, 'error');
+      return;
+    }
+
+    try {
+      const res = await Apis.post(endpoints['otps'] + 'verify_email/', {
+        email,
+        otp,
+        role: userType,
+        user_name: userName
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (res.status === 200) {
+        showToast('Xác minh OTP thành công', 'success');
+        // setTimeout(() => {
+        // }, 2100);
+        const formData = new FormData();
+
+        formData.append('first_name', fullName.substring(0, fullName.lastIndexOf(' ')));
+        formData.append('last_name', fullName.substring(fullName.lastIndexOf(' ') + 1));
+        formData.append('username', userName);
+        formData.append('email', email);
+        formData.append('phone_number', phoneNumber);
+        formData.append('address', address);
+        formData.append('avatar', avatar);
+        formData.append('cccd', cccd);
+        formData.append('password', password);
+        formData.append('role', userType);
+
+        register(
+          formData,
+          () => {
+            showToast('Đăng ký thành công', 'success')
+            setTimeout(() => {
+              navigation.navigate('Login');
+            }, 2100);
+          },
+          (message) => {
+            showToast(message, 'error');
+          }
+        );
+      }
+    } catch (error) {
+      if (error.response.data.code === 'expired_otp') {
+        showToast('OTP đã hết hạn! Click button đăng ký để gửi lại mã.', 'error');
+        setIsSentOTP(false);
+        setOTP('');
+      } else {
+        showToast(error.response.data.message, 'error');
+      }
+    }
+  }
+
   const validation = () => {
-    if (fullName === '' || userName === '' || email === '' || phoneNumber === '' || address === '' || password === '' || confirmPassword === '' || userType === '') {
+    if (fullName === '' || email === '' || phoneNumber === '' || address === '' || password === '' || confirmPassword === '' || userType === '') {
       showToast('Vui lòng nhập đầy đủ thông tin', 'error');
       return false;
     }
+
+    let userNameValidationMessage = formValidate.userNameValidation(userName);
+    if (userNameValidationMessage != 'Validated') {
+      showToast(userNameValidationMessage, 'error');
+      return false;
+    }
+
     if (userType == 3) {
       let cccdValidationMessage = formValidate.cccdValidation(cccd);
       if (cccdValidationMessage != 'Validated') {
@@ -66,19 +124,22 @@ export default function Register({ navigation }) {
         return false;
       }
     }
-    
+
     if (!formValidate.phoneValidation(phoneNumber)) {
       showToast('Số điện thoại không hợp lệ', 'error');
       return false;
     }
+
     if (!formValidate.emailValidation(email)) {
       showToast('Email không hợp lệ', 'error');
       return false;
     }
+
     if (password !== confirmPassword) {
       showToast('Mật khẩu không khớp', 'error');
       return false;
     }
+
     return true;
   }
 
@@ -116,13 +177,6 @@ export default function Register({ navigation }) {
         value={address}
         onChangeText={text => setAddress(text)}
       />
-      <TextInput
-        placeholder="Mật khẩu"
-        secureTextEntry={true}
-        style={{ width: '100%', height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 }}
-        value={password}
-        onChangeText={text => setPassword(text)}
-      />
       {
         (userType === 3) && (
           <TextInput
@@ -135,6 +189,13 @@ export default function Register({ navigation }) {
         )
       }
       <TextInput
+        placeholder="Mật khẩu"
+        secureTextEntry={true}
+        style={{ width: '100%', height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 }}
+        value={password}
+        onChangeText={text => setPassword(text)}
+      />
+      <TextInput
         placeholder="Xác nhận mật khẩu"
         secureTextEntry={true}
         style={{ width: '100%', height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 }}
@@ -145,14 +206,27 @@ export default function Register({ navigation }) {
         placeholder={{ label: 'Chọn loại tài khoản', value: null }}
         onValueChange={(value) => setUserType(value === 'Customer' ? 2 : 3)}
         items={[
-          { label: 'Khách hàng', value: 'Customer'},
-          { label: 'Shipper', value: 'Shipper'},
+          { label: 'Khách hàng', value: 'Customer' },
+          { label: 'Shipper', value: 'Shipper' },
         ]}
         style={{ inputAndroid: { width: '100%', height: 40, borderWidth: 1, borderColor: 'gray', marginBottom: 10, paddingHorizontal: 10 } }}
       />
+      {
+        isSentOTP && (
+          <View style={{ flexDirection: 'row', height: 40, justifyContent: 'center', marginBottom: 15 }}>
+            <TextInput
+              placeholder="OTP - 6 chữ số"
+              style={{ width: '60%', height: 40, backgroundColor: 'white', borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 }}
+              value={otp}
+              onChangeText={(text) => setOTP(text)}
+            />
+            <Button title="Xác minh" onPress={handleVerifyOTP} styleOptions={{ width: '40%', height: '100%', marginLeft: 2 }} />
+          </View>
+        )
+      }
       <Button title="Đăng ký" onPress={handleRegister} />
-      <View style={{marginTop: 20, flexDirection:'row'}}>
-        <Text style={{ fontSize: 12}}>Đã có tài khoản? </Text>
+      <View style={{ marginTop: 20, flexDirection: 'row' }}>
+        <Text style={{ fontSize: 12 }}>Đã có tài khoản? </Text>
         <TouchableOpacity onPress={handleLogin}>
           <Text style={{ fontSize: 12, color: 'green' }}>Đăng nhập</Text>
         </TouchableOpacity>

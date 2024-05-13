@@ -50,10 +50,47 @@ const priceValidation = (price) => {
     return 'Validated';
 }
 
+const otpValidation = (otp) => {
+    if (otp.length === 0) {
+        return "Vui lòng nhập mã OTP";
+    }
+
+    if (otp.length !== 6) {
+        return "Mã OTP phải có 6 chữ số";
+    }
+
+    const regex = /^[0-9]{6}$/;
+    if (!regex.test(otp)) {
+        return "Mã OTP chỉ được phép chứa số";
+    }
+
+    return 'Validated';
+}
+
+const userNameValidation = (userName) => {
+    if (userName.length === 0) {
+        return "Vui lòng nhập tên đăng nhập";
+    }
+
+    if (userName.length < 6) {
+        return "Tên đăng nhập phải có ít nhất 6 ký tự";
+    }
+
+    const regex = /^[a-zA-Z0-9]+$/;
+    if (!regex.test(userName)) {
+        return "Tên đăng nhập không được chứa khoảng trắng hoặc ký tự đặc biệt";
+    }
+
+    return 'Validated';
+
+}
+
 export {
     emailValidation,
     phoneValidation,
     passwordValidation,
     cccdValidation,
-    priceValidation
+    priceValidation,
+    otpValidation,
+    userNameValidation
 }

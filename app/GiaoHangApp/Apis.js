@@ -9,6 +9,7 @@ export const endpoints = {
     'auctions': 'api/auctions/',
     'payment_methods': 'api/payment_methods/',
     'bids': 'api/bids/',
+    'otps': 'api/otps/',
 }
 
 export const authApi = (accessToken) => axios.create(
