@@ -87,17 +87,14 @@ export default function AuctionShipper({ route }) {
                     }
                 });
 
-                if (response.data.success) {
-                    showToast('Đấu giá thành công', 'success');
+                if (response.data.code === 'success') {
+                    showToast('Đấu giá thành công.', 'success');
                     fetchAuction();
                 }
             } catch (error) {
-                let errorMessage = error.response.data.message || error.response.data.error || error.response.data.error_description || error.response.data.detail;
-                showToast(errorMessage, 'error');
+                showToast(error.response.data.message, 'error');
                 fetchAuction()
             }
-        } else {
-            fetchAuction()
         }
     }
 
@@ -109,11 +106,11 @@ export default function AuctionShipper({ route }) {
         }
 
         if (parseInt(price) >= parseInt(auction.current_price)) {
-            showToast('Giá đấu phải thấp hơn giá hiện tại', 'error');
+            showToast('Giá đấu phải thấp hơn giá hiện tại.', 'error');
             return false;
         }
         if (price % 1000 !== 0) {
-            showToast('Giá tiền phải không lẻ ( chia hết cho 1000VND)', 'error');
+            showToast('Giá tiền phải không lẻ ( chia hết cho 1000VND).', 'error');
             return false;
         }
 

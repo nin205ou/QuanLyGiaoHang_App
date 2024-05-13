@@ -67,7 +67,7 @@ class Auction(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auctions')
     name = models.CharField('name', max_length=255)
     description = models.TextField('description', null=True)
-    weight = models.DecimalField('weight', max_digits=10, decimal_places=2)
+    weight = models.DecimalField('weight',max_digits= 10, decimal_places=2)
     collection = models.IntegerField('collection')
     # image = CloudinaryField('image_auctions', null=True)
     image = models.ImageField(upload_to='actions/', null=True, blank=True)
@@ -76,8 +76,8 @@ class Auction(BaseModel):
     phone_number_giver = models.CharField('phone_number_giver', max_length=15)
     start_time = models.DateTimeField('start_time', auto_now_add=True)
     end_time = models.DateTimeField('end_time', default= timezone.now() + timedelta(hours=12))
-    start_price = models.DecimalField('start_price', max_digits=10, decimal_places=0)
-    current_price = models.DecimalField('current_price', max_digits=10, decimal_places=0)
+    start_price = models.IntegerField('start_price')
+    current_price = models.IntegerField('current_price')
     type_payment = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, related_name='auctions_payment_methods')
     winner_shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auctions_winner', null=True, blank=True)
     status = models.BooleanField('status', default=True)
@@ -96,7 +96,7 @@ class Auction(BaseModel):
 class Bid(BaseModel):
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='bids')
     shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bids_shipper')
-    price = models.DecimalField(max_digits=10, decimal_places=0)
+    price = models.IntegerField()
     
     def __str__(self):
         return self.auction.name + ' - ' + self.shipper.username + ' : ' + str(self.price)
@@ -121,17 +121,17 @@ class Order(BaseModel):
     time_pickup = models.CharField(max_length=255)
     time_deliver = models.CharField(max_length=255)
     type_payment = models.ForeignKey(PaymentMethod, null=True, on_delete=models.CASCADE, related_name='orders_payment_methods')
-    collection = models.DecimalField(max_digits=10, decimal_places=0)
-    price = models.DecimalField(max_digits=10, decimal_places=0)
-    us_collect = models.DecimalField(max_digits=10, decimal_places=0)
+    collection = models.IntegerField()
+    price = models.IntegerField()
+    us_collect = models.IntegerField()
     
     def __str__(self):
         return self.name_product + ' - ' + self.user.username + ' : ' + str(self.price)
     
 class TypeDelivery(BaseModel):
     name = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=0)
-    additional_fee_per_500gram = models.DecimalField(max_digits=10, decimal_places=0)
+    price = models.IntegerField()
+    additional_fee_per_500gram = models.IntegerField()
     max_time = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     

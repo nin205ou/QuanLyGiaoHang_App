@@ -1,0 +1,49 @@
+{% load humanize %}
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    font-family: 'Georgia', serif; /* Font chữ serif trang trọng */
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4; /* Màu nền nhạt */
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 600px;
+    margin: 20px auto; /* Thêm lề trên dưới */
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Bóng đổ nhẹ */
+}
+
+h1 {
+    color: #d32f2f; /* Màu đỏ */
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 25px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Thông báo đấu giá đơn hàng</h1>
+    <p>Xin chào {{ shipperName }},</p>
+    <p>Rất tiếc, bạn đã không được chọn làm shipper cho đơn hàng "{{ auction.name }}".</p>
+    <p>Giá chiến thắng đấu giá cuối cùng là: {{ auction.current_price|intcomma }} đ</p>
+    <p>Cảm ơn bạn đã tham gia đấu giá đơn hàng. Chúc bạn may mắn lần sau!</p>
+    <p style="text-align: center;">Trân trọng,</p>
+  </div>
+</body>
+</html>
+

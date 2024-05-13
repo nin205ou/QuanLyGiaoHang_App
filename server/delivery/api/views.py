@@ -103,7 +103,7 @@ class AuctionViewSet(viewsets.ModelViewSet):
         
         if is_auctioning and is_auctioning.lower() == 'true':
             now = timezone.now()
-            return Auction.objects.filter(start_time__lte=now, end_time__gte=now, status=True).order_by('start_time')
+            return Auction.objects.filter(start_time__lte=now, end_time__gte=now, status=True, winner_shipper=None).order_by('start_time')
         
         return Auction.objects.all()    
     
@@ -111,13 +111,26 @@ class AuctionViewSet(viewsets.ModelViewSet):
     def select_winner_shipper(self, request, pk=None):
         auction = self.get_object()
         shipper_id = request.data.get('shipper_id')
+        price = request.data.get('price')
         try:
             shipper = User.objects.get(id=shipper_id)
         except User.DoesNotExist:
             return Response({'error': 'Không tìm thấy shipper.', 'code' : 'shipper_not_found'}, status=status.HTTP_400_BAD_REQUEST)
         
         auction.winner_shipper = shipper
+        auction.current_price = price
         auction.save()
+        
+        customer = User.objects.get(id=auction.user_id)
+        send_email("Chúc mừng bạn đã chiến thắng đấu giá", "bid_accepted_email.html", {"auction": auction, "shipperName" : shipper.username, "customer" : customer}, shipper.email)
+        
+        bids = Bid.objects.filter(auction=auction.id)
+
+        participating_shippers = [bid.shipper for bid in bids if bid.shipper != shipper]
+
+        for participating_shipper in participating_shippers:
+            send_email("Đấu giá đã kết thúc", "bid_rejected_email.html", {"auction": auction, "shipperName" : participating_shipper.username}, participating_shipper.email)
+        
         return Response({'message': 'Chọn shipper chiến thắng thành công.', 'code': 'success'}, status=status.HTTP_200_OK)
     
 class BidViewSet(viewsets.ModelViewSet):
@@ -142,6 +155,13 @@ class BidViewSet(viewsets.ModelViewSet):
         user_id = serializer.validated_data['shipper'].id
         bid_price = serializer.validated_data['price']
         
+        auction = Auction.objects.get(id=auction_id)
+        if auction.winner_shipper is not None:
+            return Response({
+                'message': 'Đấu giá đã kết thúc.',
+                'code' : 'auction_ended'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
         if bid_price<=0:
             return Response({
                 'message': 'Giá đấu không hợp lệ.',
@@ -167,7 +187,6 @@ class BidViewSet(viewsets.ModelViewSet):
                 'code' : 'just_shipper_can_auction'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        auction = Auction.objects.get(id=auction_id)
 
         # Kiểm tra giá thầu
         if bid_price >= auction.current_price:

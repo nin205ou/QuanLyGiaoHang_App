@@ -1,0 +1,74 @@
+{% load humanize %}
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  font-family: 'Georgia', serif; 
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f4f4f4; 
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+h1 {
+  color: #007bff; 
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 25px;
+}
+
+p {
+  margin-bottom: 15px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+.label {
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Xin chúc mừng, {{ shipperName }}!</h1>
+    <p>Bạn đã đấu giá thành công đơn hàng "{{ auction.name }}"!</p>
+    <p>Vui lòng liên hệ với khách hàng ({{ customer.username }}) qua:</p>
+    <ul>
+      <li><span class="label">Email:</span> {{ customer.email }}</li>
+      <li><span class="label">Số điện thoại:</span> {{ customer.phone_number }}</li>
+    </ul>
+    <p>Thông tin chi tiết về đơn hàng:</p>
+    <ul>
+      <li><span class="label">Mã đơn hàng:</span> {{ auction.id }}</li>
+      <li><span class="label">Tên sản phẩm:</span> {{ auction.name }}</li>
+      <li><span class="label">Giá tiền giao hàng:</span> {{ auction.current_price|intcomma }} đ</li>
+      <li><span class="label">Địa chỉ nhận hàng:</span> {{ auction.source }}</li>
+      <li><span class="label">Địa chỉ giao hàng:</span> {{ auction.destination }}</li>
+      <li><span class="label">Số điện thoại người nhận:</span> {{ auction.phone_number_giver }}</li>
+    </ul>
+    <p>Chúc bạn hoàn thành đơn hàng thành công!</p>
+    <p style="text-align: center;">Trân trọng</p>
+  </div>
+</body>
+</html>

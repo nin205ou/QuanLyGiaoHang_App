@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import moment from 'moment-timezone';
-import { RefreshControl, StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { RefreshControl, StyleSheet, Text, TouchableOpacity, View, ScrollView, Alert } from 'react-native';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import Button from '../static/Button';
 import { AuthContext } from '../../context/authContext';
@@ -73,23 +73,43 @@ export default function AuctionCustomer({ route }) {
             return () => clearInterval(timer);
         }
     }, [auction.status]);
+
+    const handleSelectWinner = async (data) => {
+        try {
+            const res = await authApi(userToken).post(endpoints['auctions'] + auctionId + '/select_winner_shipper/', {
+                shipper_id: data.shipperId,
+                price: parseInt(data.price.replace(/[^\d]/g, ''))
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (res.status === 200) {
+                showToast('Chọn shipper thành công', 'success');
+                fetchAuction();
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const element = (data, index) => (
         <TouchableOpacity onPress={async () => {
-            try {
-                const res = await authApi(userToken).post(endpoints['auctions'] + auctionId + '/select_winner_shipper/', {
-                    shipper_id: data
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (res.status === 200) {
-                    showToast('Chọn shipper thành công', 'success');
-                    fetchAuction();
-                }
-            } catch (error) {
-                console.log(error.message);
-            }
+            Alert.alert(
+                'Xác nhận',
+                'Bạn có chắc chắn chọn shipper này không?',
+                [
+                    {
+                        text: 'Hủy',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Chọn',
+                        onPress: async () => await handleSelectWinner(data),
+                    },
+                ],
+            );
+
         }}
             disabled={auction.winner_shipper !== null}
         >
@@ -150,7 +170,7 @@ export default function AuctionCustomer({ route }) {
                                             <TableWrapper key={index} style={styles.row}>
                                                 {
                                                     rowData.map((cellData, cellIndex) => {
-                                                        return <Cell key={cellIndex} data={cellIndex == 4 ? element(cellData, cellIndex) : cellData} textStyle={styles.text} />
+                                                        return <Cell key={cellIndex} data={cellIndex == 4 ? element({"shipperId": cellData, "price": rowData[2]}, cellIndex) : cellData} textStyle={styles.text} />
                                                     })
                                                 }
                                             </TableWrapper>
