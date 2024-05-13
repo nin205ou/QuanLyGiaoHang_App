@@ -103,10 +103,11 @@ export default function TaoMoiDH({ navigation }) {
       return false;
     }
 
-    if(startPrice <= 0){
-      showToast('Giá khởi điểm không hợp lệ', 'error');
+    let priceValidationMessage = formValidate.priceValidation(startPrice);
+    if(priceValidationMessage !== 'Validated'){
+      showToast(priceValidationMessage, 'error');
       return false;
-    }
+    }      
 
     return true;
   }

@@ -18,7 +18,9 @@ import {
   DonHang,
   Auctioning,
   QuanLyShipper,
-  ThongBao
+  ThongBao,
+  AuctionCustomer,
+  AuctionShipper
 } from './screens/';
 
 import MainTabShipper from './screens/Shipper';
@@ -51,16 +53,18 @@ const MainTabNavigator = () => {
             return <Icon name={focused ? 'bell' : 'bell-o'} size={size} color={color} />;
           } else if (route.name === 'Auctioning') {
             return <Icon name='gavel' size={size} color={color} />
+          } else if (route.name === 'QuanLyShipper') {
+            return <Icon name={focused ? 'truck' : 'truck'} size={size} color={color} />;
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
       })}
       tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-        labelStyle: { paddingBottom: 10, fontSize: 10 },
-        style: { padding: 10, height: 70 }
+        tabBarLabelStyle: { paddingBottom: 10, fontSize: 10 },
+        tabBarTabStyle: { paddingTop: 10 },
       }}
     >
       <Tab.Screen name="Home" component={Home} />
@@ -94,6 +98,8 @@ export default function MainContainer() {
           <Stack.Screen name="User" component={User} />
           <Stack.Screen name="QuanLyShipper" component={QuanLyShipper} />
           <Stack.Screen name="ThongBao" component={ThongBao} />
+          <Stack.Screen name="AuctionCustomer" component={AuctionCustomer} />
+          <Stack.Screen name="AuctionShipper" component={AuctionShipper} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>

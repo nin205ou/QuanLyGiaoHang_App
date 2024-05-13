@@ -29,9 +29,31 @@ const cccdValidation = (cccd) => {
     return 'Validated';
 }
 
+const priceValidation = (price) => {
+    if (price == 0) {
+        return "Vui lòng nhập giá";
+    }
+
+    const regex = /^[0-9]+$/;
+    if (!regex.test(price)) {
+        return "Giá chỉ được phép chứa số";
+    }
+
+    if (price < 1000) {
+        return "Giá quá thấp. Vui lòng nhập giá cao hơn";
+    }
+
+    if (price > 10000000) {
+        return "Giá quá cao. Vui lòng nhập giá thấp hơn";
+    }
+
+    return 'Validated';
+}
+
 export {
     emailValidation,
     phoneValidation,
     passwordValidation,
     cccdValidation,
+    priceValidation
 }

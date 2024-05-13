@@ -5,12 +5,14 @@ import Admin from './Admin'
 import Shipper from './Shipper'
 import User from './User'
 import TaoMoiDH from './TaoMoiDH'
-import Info from './Info'
+import Info from './Information'
 import ThongKe from './ThongKe'
 import DonHang from './DonHang'
 import Auctioning from './Auctioning'
 import QuanLyShipper from './QuanLyShipper'
 import ThongBao from './ThongBao'
+import AuctionCustomer from './AuctionCustomer'
+import AuctionShipper from './AuctionShipper'
 
 export {
     Home,
@@ -25,5 +27,8 @@ export {
     DonHang,
     Auctioning,
     QuanLyShipper,
-    ThongBao
+    ThongBao,
+    AuctionCustomer,
+    AuctionShipper
+
 }

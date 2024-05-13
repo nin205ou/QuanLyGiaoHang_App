@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, RefreshControl } fr
 import Apis, { authApi, endpoints } from "../../Apis";
 import { AuthContext } from '../../context/authContext';
 import { Toast, showToast } from '../../static/js/toast';
-import OrderItem from '../static/OrderItem';
+import AuctionItem from '../static/AuctionItem';
 
 export default function DonHang({ navigation }) {
   const [data, setData] = React.useState([]);
@@ -56,7 +56,7 @@ export default function DonHang({ navigation }) {
           <FlatList
             data={data}
             keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => <OrderItem item={item} />}
+            renderItem={({ item }) => <AuctionItem item={item} />}
             refreshControl={
               <RefreshControl
                 refreshing={false}

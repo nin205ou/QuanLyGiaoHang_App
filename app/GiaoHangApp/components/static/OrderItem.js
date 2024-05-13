@@ -36,7 +36,7 @@ const OrderItem = ({ item }) => {
         <View style={styles.itemContainer}>
             <Text style={styles.label}>Mã đơn hàng: <Text style={styles.value}>{item.id}</Text></Text>
             <Text style={styles.label}>Tên đơn hàng: <Text style={styles.value}>{item.name}</Text></Text>
-            <Text style={styles.label}>Người tạo: <Text style={styles.value}>{item.user}</Text></Text>
+            <Text style={styles.label}>Người tạo: <Text style={styles.value}>{item.user_name}</Text></Text>
             <Text style={styles.label}>Trạng thái:
                 <Text style={[styles.value, { color: item.status ? 'green' : 'red' }]}>
                     {item.status ? ' Đang diễn ra' : ' Đã kết thúc'}
@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: '#ccc',
         paddingVertical: 10,
+        paddingHorizontal: 10
     },
     label: {
         fontSize: 16,

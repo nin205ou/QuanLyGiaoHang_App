@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Role, Order, Auction, Bid
 from .models import AdministrativeRegion, AdministrativeUnit, Province, District, Ward, HomeNumber
 
@@ -33,14 +34,28 @@ class UserSerializer(ModelSerializer):
         return user
        
 class AuctionSerializer(ModelSerializer):
+    user_name = serializers.SerializerMethodField()
+    shipper_joining = serializers.SerializerMethodField()
+    
     class Meta:
         model = Auction
         fields = '__all__'
         
+    def get_user_name(self, obj):
+        return obj.user.username
+    
+    def get_shipper_joining(self, obj):
+        return obj.bids.values('shipper').distinct().count()
+        
 class BidSerializer(ModelSerializer):
+    shipper_name = serializers.SerializerMethodField()
     class Meta:
         model = Bid
-        fields = '__all__'
+        fields = [ 'auction', 'shipper', 'price', 'created_at', 'shipper_name']
+        
+    def get_shipper_name(self, obj):
+        return obj.shipper.username
+    
 
 class OrderSerializer(ModelSerializer):
     class Meta:
