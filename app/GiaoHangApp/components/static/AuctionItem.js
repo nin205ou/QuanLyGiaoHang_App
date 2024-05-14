@@ -49,12 +49,21 @@ const Auction = ({ item }) => {
         <View style={styles.itemContainer}>
             <Text style={styles.label}>Tên đơn hàng: <Text style={styles.value}>{item.name}</Text></Text>
             <Text style={styles.label}>Người tạo: <Text style={styles.value}>{item.user_name}</Text></Text>
-            <Text style={styles.label}>Trạng thái:<Text style={[styles.value, { color: 'green' }]}> Đang diễn ra </Text></Text>
-            <Text style={styles.label}>Thời gian còn lại:
-                <Text style={styles.value}>
-                    {` ${timeLeft.hours} giờ ${timeLeft.minutes} phút ${timeLeft.seconds} giây`}
+            <Text style={styles.label}>Trạng thái:
+                <Text style={[styles.value, { color: item.status ? 'green' : 'red' }]}>
+                    {item.status ? ' Đang diễn ra' : ' Đã kết thúc'}
                 </Text>
             </Text>
+
+            {
+                item.status ? (
+                    <Text style={styles.label}>Thời gian còn lại:
+                        <Text style={styles.value}>
+                            {` ${timeLeft.hours} giờ ${timeLeft.minutes} phút ${timeLeft.seconds} giây`}
+                        </Text>
+                    </Text>
+                ) : null
+            }
             {
                 userInfor.role == 3 ? (
                     <>
@@ -64,7 +73,7 @@ const Auction = ({ item }) => {
                 ) : null
             }
             {userInfor.role == 2 ? <Text style={styles.label}>Thời gian tạo: <Text style={styles.value}>{dateCreated.toLocaleString()}</Text></Text> : null}
-            <Text style={styles.label}>Số tiền đấu giá hiện tại: <Text style={styles.value}>{formattedPrice}</Text></Text>
+            <Text style={styles.label}>{item.status ? 'Số tiền đấu giá hiện tại' : 'Số tiền cuối cùng'}: <Text style={styles.value}>{formattedPrice}</Text></Text>
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
                 <TouchableOpacity onPress={() => handleAuctionDetail(item.id)} style={{ marginTop: 12, paddingHorizontal: 20, paddingVertical: 8, backgroundColor: 'green', borderRadius: 8 }}>
                     <Text style={{ fontSize: 14, color: 'white' }}>Xem chi tiết</Text>

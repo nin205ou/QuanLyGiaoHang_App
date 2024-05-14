@@ -52,7 +52,7 @@ li {
 <body>
   <div class="container">
     <h1>Xin chúc mừng, {{ shipperName }}!</h1>
-    <p>Bạn đã đấu giá thành công đơn hàng "{{ auction.name }}"!</p>
+    <p>Bạn đã đấu giá thành công đơn hàng "{{ order.name_product }}"!</p>
     <p>Vui lòng liên hệ với khách hàng ({{ customer.username }}) qua:</p>
     <ul>
       <li><span class="label">Email:</span> {{ customer.email }}</li>
@@ -60,12 +60,17 @@ li {
     </ul>
     <p>Thông tin chi tiết về đơn hàng:</p>
     <ul>
-      <li><span class="label">Mã đơn hàng:</span> {{ auction.id }}</li>
-      <li><span class="label">Tên sản phẩm:</span> {{ auction.name }}</li>
-      <li><span class="label">Giá tiền giao hàng:</span> {{ auction.current_price|intcomma }} đ</li>
-      <li><span class="label">Địa chỉ nhận hàng:</span> {{ auction.source }}</li>
-      <li><span class="label">Địa chỉ giao hàng:</span> {{ auction.destination }}</li>
-      <li><span class="label">Số điện thoại người nhận:</span> {{ auction.phone_number_giver }}</li>
+      <li><span class="label">Mã đơn hàng:</span> {{ order.id }}</li>
+      <li><span class="label">Tên sản phẩm:</span> {{ order.name }}</li>
+      <li><span class="label">Giá tiền giao hàng:</span> {{ order.price|intcomma }} đ</li>
+      <li><span class="label">Địa chỉ nhận hàng:</span> {{ order.source }}</li>
+      <li><span class="label">Địa chỉ giao hàng:</span> {{ order.destination }}</li>
+      <li><span class="label">Số điện thoại người nhận:</span> {{ order.phone_number_giver }}</li>
+      <li><span class="label">Thời gian lấy hàng:</span> {{ order.time_pickup }}</li>
+      <li><span class="label">Thời gian giao hàng:</span> {{ order.time_deliver }}</li>
+      <li><span class="label">Phương thức thanh toán:</span> {{ order.type_payment }}</li>
+      <li><span class="label">Tiền thu hộ giúp khách hàng:</span> {{ order.collection|intcomma }} đ</li>
+      <li><span class="label">Hoàn thành đơn hàng bạn nhân được:</span> {{ order.shipper_collect|intcomma }} đ</li>
     </ul>
     <p>Chúc bạn hoàn thành đơn hàng thành công!</p>
     <p style="text-align: center;">Trân trọng</p>

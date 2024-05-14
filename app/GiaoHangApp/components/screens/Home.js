@@ -5,17 +5,15 @@ import { AuthContext } from '../../context/authContext';
 
 
 export default function Home({ navigation }) {
-  const { userToken, userInfor } = React.useContext(AuthContext)
+  const { userToken, userInfor, checkLogin } = React.useContext(AuthContext)
 
   const handleLogin = () => {
     navigation.navigate('Login');
   };
 
   React.useEffect(() => {
-    if (!userToken) {
-      navigation.navigate('Login');
-    }
-  }, [])
+    checkLogin();
+  }, [userToken])
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

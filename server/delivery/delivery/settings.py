@@ -35,7 +35,7 @@ EMAIL_HOST_PASSWORD = 'dwkl aedq ptpq uros'
 ALLOWED_HOSTS = [
     'localhost',
     '192.168.1.46',
-    'a3f2-2402-800-6314-c783-dd4e-45d4-40c8-677d.ngrok-free.app'
+    '3c08-115-73-132-68.ngrok-free.app'
 ]
 
 

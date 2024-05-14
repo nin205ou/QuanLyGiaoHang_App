@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import Apis, { authApi, endpoints } from "../../Apis";
-import { AuthContext } from '../../context/authContext';
-import { Toast, showToast } from '../../static/js/toast';
-import Auction from '../static/AuctionItem';
+import Apis, { authApi, endpoints } from "../../../Apis";
+import { AuthContext } from '../../../context/authContext';
+import { Toast, showToast } from '../../../static/js/toast';
+import Auction from '../../static/AuctionItem';
 
 export default function Auctioning({ navigation }) {
   const [data, setData] = React.useState([]);

@@ -2,11 +2,11 @@ import * as React from 'react';
 import moment from 'moment-timezone';
 import { StyleSheet, Text, TextInput, RefreshControl, View, ScrollView } from 'react-native';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
-import { AuthContext } from '../../context/authContext';
-import Apis, { authApi, endpoints } from "../../Apis";
-import Button from "../static/Button"
-import { Toast, showToast } from '../../static/js/toast';
-import * as formValidation from '../../static/js/validationFunc';
+import { AuthContext } from '../../../context/authContext';
+import Apis, { authApi, endpoints } from "../../../Apis";
+import Button from "../../static/Button"
+import { Toast, showToast } from '../../../static/js/toast';
+import * as formValidation from '../../../static/js/validationFunc';
 
 export default function AuctionShipper({ route }) {
     const { auctionId } = route.params;

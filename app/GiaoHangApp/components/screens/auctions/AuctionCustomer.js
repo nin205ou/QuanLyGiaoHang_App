@@ -3,11 +3,11 @@ import * as React from 'react';
 import moment from 'moment-timezone';
 import { RefreshControl, StyleSheet, Text, TouchableOpacity, View, ScrollView, Alert } from 'react-native';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
-import Button from '../static/Button';
-import { AuthContext } from '../../context/authContext';
-import Apis, { authApi, endpoints } from "../../Apis";
+import Button from '../../static/Button';
+import { AuthContext } from '../../../context/authContext';
+import Apis, { authApi, endpoints } from "../../../Apis";
 // import {  } from 'react-native-gesture-handler';
-import { showToast, Toast } from '../../static/js/toast';
+import { showToast, Toast } from '../../../static/js/toast';
 
 export default function AuctionCustomer({ route }) {
     const { auctionId } = route.params;

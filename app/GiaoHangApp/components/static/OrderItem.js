@@ -1,62 +1,50 @@
 import moment from 'moment-timezone';
-import { StyleSheet,Text, TouchableOpacity, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import * as React from 'react';
+import PickerSelect from 'react-native-picker-select';
+import { Toast, showToast } from '../../static/js/toast';
+import Button from '../static/Button'
 
 const OrderItem = ({ item }) => {
-    const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.current_price)
-    const localTime = moment.utc(item.created_at).tz('Asia/Ho_Chi_Minh');
-    const dateCreated = moment(localTime).format('YYYY-MM-DD HH:mm:ss');
-    const [timeLeft, setTimeLeft] = React.useState(calculateTimeLeft());
+    const [statusOrders, setStatusOrders] = React.useState([]);
+    const [currentStatus, setCurrentStatus] = React.useState();
+    const formatCollect = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.collection)
+    const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.shipper_collect)
+    const localTime = moment.utc(item.created_at).tz('Asia/Ho_Chi_Minh').add(6, 'hours');
+    const dateCreated = moment(localTime).format('YYYY-MM-DD HH:mm:ss')
+    const phoneNumber = item.phone_number_giver;
+    const formattedPhoneNumber = phoneNumber.slice(0, 3) + ' ' + phoneNumber.slice(3, 6) + ' ' + phoneNumber.slice(6);
 
-    function calculateTimeLeft() {
-        const endTime = moment(item.end_time);
-        const now = moment();
-        const diff = endTime.diff(now);
-        const duration = moment.duration(diff);
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-        const seconds = duration.seconds();
+    const fetchStatusOrder = async () => {
+        const response = await authApi(userToken).get(endpoints['status_order']);
+        setStatusOrders(response.data);
+      }
 
-        return {
-            hours,
-            minutes,
-            seconds
-        }
+    const handleUpdateSttOrder = () => {
     }
-
-    item.status && React.useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft(calculateTimeLeft());
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
 
     return (
         <View style={styles.itemContainer}>
             <Text style={styles.label}>Mã đơn hàng: <Text style={styles.value}>{item.id}</Text></Text>
-            <Text style={styles.label}>Tên đơn hàng: <Text style={styles.value}>{item.name}</Text></Text>
-            <Text style={styles.label}>Người tạo: <Text style={styles.value}>{item.user_name}</Text></Text>
-            <Text style={styles.label}>Trạng thái:
-                <Text style={[styles.value, { color: item.status ? 'green' : 'red' }]}>
-                    {item.status ? ' Đang diễn ra' : ' Đã kết thúc'}
-                </Text></Text>
-            {
-                item.status ? (
-                    <Text style={styles.label}>Thời gian còn lại: 
-                        <Text style={styles.value}>
-                            {` ${timeLeft.hours} giờ ${timeLeft.minutes} phút ${timeLeft.seconds} giây`}
-                        </Text>
-                    </Text>
-                ) : null
-            }
-            <Text style={styles.label}>Thời gian tạo: <Text style={styles.value}>{dateCreated.toLocaleString()}</Text></Text>
-            <Text style={styles.label}>{item.status ? 'Số tiền hiện tại' : 'Số tiền đã trả'}: <Text style={styles.value}>{formattedPrice}</Text></Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <TouchableOpacity onPress={() => alert('khoe khong')} style={{ marginTop: 12, paddingHorizontal: 20, paddingVertical: 8, backgroundColor: 'green', borderRadius: 8 }}>
-                    <Text style={{ fontSize: 14, color: 'white' }}>Xem chi tiết</Text>
-                </TouchableOpacity>
-            </View>
+            <Text style={styles.label}>Tên đơn hàng: <Text style={styles.value}>{item.name_product}</Text></Text>
+            <Text style={styles.label}>Thời gian cuối phải giao: <Text style={styles.value}>{dateCreated.toLocaleString()}</Text></Text>
+            <Text style={styles.label}>Địa chỉ nhận hàng: <Text style={styles.value}>{item.source}</Text></Text>
+            <Text style={styles.label}>Địa chỉ giao hàng: <Text style={styles.value}>{item.destination}</Text></Text>
+            <Text style={styles.label}>Số điện thoại người nhận: <Text onPress={() => Linking.openURL(`tel:${phoneNumber}`)} style={{ ...styles.value, color: 'blue' }}>{formattedPhoneNumber}</Text></Text>
+            <Text style={styles.label}>Số tiền thu hộ khách hàng: <Text style={styles.value}>{formatCollect}</Text></Text>
+            <Text style={styles.label}>Số tiền nhận được cho đơn hàng: <Text style={styles.value}>{formattedPrice}</Text></Text>
+            <PickerSelect
+                placeholder={{ label: 'Chọn loại tài khoản', value: null }}
+                onValueChange={(value) => setUserType(value === 'Customer' ? 2 : 3)}
+                items={[
+                    { label: 'Khách hàng', value: 'Customer' },
+                    { label: 'Shipper', value: 'Shipper' },
+                ]}
+                style={{ inputAndroid: { width: '100%', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 } }}
+
+            />
+            <Button title="Cập nhật" onPress={handleUpdateSttOrder} />
+            <Toast />
         </View>
     )
 };

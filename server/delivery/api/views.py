@@ -4,8 +4,8 @@ from .utils.email import send_email
 from .utils.otp import generate_otp
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.parsers import MultiPartParser
-from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Role, Auction, Bid, Order, OTP
-from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, StatusOrderSerializer, UserSerializer, RoleSerializer, AuctionSerializer, BidSerializer, OrderSerializer, OTPSerializer
+from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Auction, Bid, Order, OTP
+from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, StatusOrderSerializer, UserSerializer, AuctionSerializer, BidSerializer, OrderSerializer, OTPSerializer
 
 from .models import AdministrativeRegion, AdministrativeUnit, Province, District, Ward
 from .serializers import AdminRegionSerializer, AdminUnitSerializer, ProvinceSerializer, DistrictSerializer, WardSerializer   
@@ -121,12 +121,40 @@ class AuctionViewSet(viewsets.ModelViewSet):
         auction.current_price = price
         auction.save()
         
+        us_collect = int(0.1 * price)
+        shipper_collect = int(price - us_collect)
+        # Tạo một order mới từ thông tin của đấu giá đã kết thúc
+        new_order = Order.objects.create(
+            user=auction.user,
+            auction=auction,
+            shipper=shipper,
+            name_product=auction.name,
+            status_id=StatusOrder.objects.get(code=1),
+            weight=auction.weight,
+            source=auction.source,
+            destination=auction.destination,
+            phone_number_giver=auction.phone_number_giver,
+            time_pickup="Giờ hành chính",
+            time_deliver="Giờ hành chính",
+            type_payment=auction.type_payment,
+            collection=auction.collection,
+            price=auction.current_price,
+            us_collect=us_collect,
+            shipper_collect=shipper_collect
+        )
+        
         customer = User.objects.get(id=auction.user_id)
-        send_email("Chúc mừng bạn đã chiến thắng đấu giá", "bid_accepted_email.html", {"auction": auction, "shipperName" : shipper.username, "customer" : customer}, shipper.email)
+        send_email("Chúc mừng bạn đã chiến thắng đấu giá", "bid_accepted_email.html", {"order": new_order, "shipperName" : shipper.username, "customer" : customer}, shipper.email)
         
         bids = Bid.objects.filter(auction=auction.id)
 
-        participating_shippers = [bid.shipper for bid in bids if bid.shipper != shipper]
+        unique_shippers = set()
+
+        for bid in bids:
+            if bid.shipper != shipper:
+                unique_shippers.add(bid.shipper)
+
+        participating_shippers = list(unique_shippers)
 
         for participating_shipper in participating_shippers:
             send_email("Đấu giá đã kết thúc", "bid_rejected_email.html", {"auction": auction, "shipperName" : participating_shipper.username}, participating_shipper.email)
@@ -206,18 +234,6 @@ class BidViewSet(viewsets.ModelViewSet):
                 'data': serializer.data
             }, status=status.HTTP_201_CREATED, headers=headers)
     
-    
-class AuctionWinnerViewSet(viewsets.ModelViewSet):
-    queryset = Auction.objects.all() 
-    serializer_class = AuctionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def update(self, request, pk):
-        auction = Auction.objects.get(pk=pk)
-        auction.winner_shipper = request.data['winner_shipper']
-        auction.save()
-        return self.serializer_class(auction).data
-    
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -225,14 +241,17 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
+        queryset = Order.objects.all()
 
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+        user_id = self.request.query_params.get('user_id', None)
+        if user_id is not None:
+            queryset = queryset.filter(user_id=user_id)
 
+        shipper_id = self.request.query_params.get('shipper_id', None)
+        if shipper_id is not None:
+            queryset = queryset.filter(shipper_id=shipper_id)
+
+        return queryset
 #Address
 class AdminRegionViewSet(viewsets.ModelViewSet):
     queryset = AdministrativeRegion.objects.order_by('name')

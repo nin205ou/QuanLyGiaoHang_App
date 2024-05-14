@@ -20,7 +20,8 @@ import {
   QuanLyShipper,
   ThongBao,
   AuctionCustomer,
-  AuctionShipper
+  AuctionShipper,
+  OrderShipper
 } from './screens/';
 
 import MainTabShipper from './screens/Shipper';
@@ -54,7 +55,9 @@ const MainTabNavigator = () => {
           } else if (route.name === 'Auctioning') {
             return <Icon name='gavel' size={size} color={color} />
           } else if (route.name === 'QuanLyShipper') {
-            return <Icon name={focused ? 'truck' : 'truck'} size={size} color={color} />;
+            return <Icon name="truck" size={size} color={color} />;
+          } else if (route.name === 'OrderShipper') {
+            return <Icon name={focused ? 'sticky-note' : 'sticky-note-o'} size={size} color={color} />;
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -70,7 +73,10 @@ const MainTabNavigator = () => {
       <Tab.Screen name="Home" component={Home} />
       {userInfor.role == 1 && <Tab.Screen name="QuanLyShipper" component={QuanLyShipper} />}
       {userInfor.role == 2 && <Tab.Screen name="DonHang" component={DonHang} />}
+
       {userInfor.role == 3 && <Tab.Screen name="Auctioning" component={Auctioning} />}
+      {userInfor.role == 3 && <Tab.Screen name="OrderShipper" component={OrderShipper} />}
+
       {userInfor.role && <Tab.Screen name="ThongKe" component={ThongKe} />}
       {userInfor.role && <Tab.Screen name="ThongBao" component={ThongBao} />}
       <Tab.Screen name="Infor" component={Info} />

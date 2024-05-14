@@ -13,8 +13,8 @@ export const AuthProvider = ({ children }) => {
     formData.append('username', username);
     formData.append('password', password);
     formData.append('grant_type', 'password');
-    formData.append('client_id', 'AENcdHOHsUoIgOSKLSNtH5pIZbbJzWhLodGkgCRt');
-    formData.append('client_secret', 'GxDX99jOIbBwIeS0YmsSlKV0ltFrO1ZrxUIcV8nhUffz8qA7jd6ouLH1lCkBWU8aSU08qlB2dDhpndKdg6Rb2e9NyQER4MimQyndabuJNGVToplN9jMLh8Rq9bFTOlrm');
+    formData.append('client_id', 'rGq3uPRLFggk39YZfodGIgGkhF7vsW3ygYXeB1fh');
+    formData.append('client_secret', '8aEQfWrX7GPbBQLcxO47N6e1el7c1mCbdA0OvjJOvxTwKyXmJ3Pfp6TGSYH7zgdqfIhPEuXc9GPVbiQP6RqdujEgU8CiZ0g3TQGf77N0Nxp4TmWRuw2o1psnznTaBuZu');
 
     const configLogin = {
       headers: {
@@ -118,7 +118,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     register,
-    sendOTP
+    sendOTP,
+    checkLogin
   };
 
   return (

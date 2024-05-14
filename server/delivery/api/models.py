@@ -121,9 +121,10 @@ class Order(BaseModel):
     time_pickup = models.CharField(max_length=255)
     time_deliver = models.CharField(max_length=255)
     type_payment = models.ForeignKey(PaymentMethod, null=True, on_delete=models.CASCADE, related_name='orders_payment_methods')
-    collection = models.IntegerField()
-    price = models.IntegerField()
-    us_collect = models.IntegerField()
+    collection = models.IntegerField(null=True, blank=True, default=0)
+    price = models.IntegerField(null=True, blank=True)
+    us_collect = models.IntegerField(null=True, blank=True)
+    shipper_collect = models.IntegerField(null=True, blank=True)
     
     def __str__(self):
         return self.name_product + ' - ' + self.user.username + ' : ' + str(self.price)

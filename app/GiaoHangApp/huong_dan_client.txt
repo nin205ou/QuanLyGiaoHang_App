@@ -1,0 +1,19 @@
+1. Cd đến thư mục dự án:
+cd app/GiaoHangApp
+
+2. Cài đặt các package cần thiết:
+npm install
+
+3. Khởi động Metro Bundler:
+npm start
+
+Sau khi bundler khởi động, nhấn phím s để mở trình duyệt web với Metro Bundler.
+
+4. Kết nối với ứng dụng Expo Go:
+
+Mở trình duyệt trên máy ảo và truy cập để tải app expo tại https://expo.dev/go
+Nhập địa chỉ thủ công (nếu không quét được mã QR):
+Mở ứng dụng Expo Go và chọn "Enter URL manually".
+Nhập địa chỉ có dạng exp://<ip_address của wifi>:8081 (ví dụ: exp://192.168.1.46:8081).
+
+--> Hoàn tất setup client

@@ -8,11 +8,12 @@ import TaoMoiDH from './TaoMoiDH'
 import Info from './Information'
 import ThongKe from './ThongKe'
 import DonHang from './DonHang'
-import Auctioning from './Auctioning'
+import Auctioning from './auctions/Auctioning'
 import QuanLyShipper from './QuanLyShipper'
 import ThongBao from './ThongBao'
-import AuctionCustomer from './AuctionCustomer'
-import AuctionShipper from './AuctionShipper'
+import AuctionCustomer from './auctions/AuctionCustomer'
+import AuctionShipper from './auctions/AuctionShipper'
+import OrderShipper from './OrderShipper'
 
 export {
     Home,
@@ -29,6 +30,6 @@ export {
     QuanLyShipper,
     ThongBao,
     AuctionCustomer,
-    AuctionShipper
-
+    AuctionShipper,
+    OrderShipper
 }

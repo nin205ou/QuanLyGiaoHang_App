@@ -1,0 +1,62 @@
+cd đến thư mục dự án sau clone
+cd ./server/
+cd ./delivery/
+
+Chạy các lệnh để cài đặt thư viện sau được để trong file requiments
+
+py -m pip install -r requirements.txt
+
+Tạo một database name "delivery_app_db" và chỉnh sửa thông tin USER, PASSWORD 
+"DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'delivery_app_db',
+        'USER': 'root',
+        'PASSWORD': '123',
+        'OPTIONS': {
+            'charset': 'utf8',
+            'collation': 'utf8_general_ci',
+        },
+    }
+}
+
+Chạy lệnh để migrate database
+py manage.py makemigrations
+py manage.py migrate
+
+Vào tool quản lí databases và import các file sql trong thư mục env để get data cơ bản
+
+Chạy server
+py manage.py runserver
+
+Tải ngrok để làm việc với máy ảo(expo)
+https://ngrok.com/download
+
+Sau khi tải bật file ngrok.exe và nhập lệnh
+ngrok http 8000 
+
+Copy part và thêm vào biến ALLOWS_HOST trong file settings.py
+ALLOWED_HOSTS = [
+    'localhost',
+    '192.168.1.46', => 'ip address của wifi'
+    '3c08-115-73-132-68.ngrok-free.app'  => 'ngrok port'
+]
+
+Tiếp tục lấy port đó sửa vào file apis.js trong thư mục ./app/GiaoHangApp/
+const root_api = 'https://3c08-115-73-132-68.ngrok-free.app/' => 'ngrok port'
+
+Tạo app lần đầu cần tạo client_id và client_secret cho app
+Truy cập http://localhost/admin/
+Đăng nhập với username=admin2, password=123456
+
+Sau đó truy cập http://localhost/o/applications/
+Click here để tạo app mới
+Nhập tên app bất kì
+Client type chọn Confidential
+Authorization grant type chọn Resource owner assword-based
+Copy client_id và client_secret đặt vào trong file authContext.js trong thư mục ./app/GiaoHangApp/context/authContext
+formData.append('client_id', 'AENcdHOHsUoIgOSKLSNtH5pIZbbJzWhLodGkgCRt');
+formData.append('client_secret', 'GxDX99jOIbBwIeS0YmsSlKV0ltFrO1ZrxUIcV8nhUffz8qA7jd6ouLH1lCkBWU8aSU08qlB2dDhpndKdg6Rb2e9NyQER4MimQyndabuJNGVToplN9jMLh8Rq9bFTOlrm');
+Chỉnh sửa lại client_id và client_secret lưu ý client_secret copy trước khi nhấn save khi tạo app, vì nó sẽ bị băm sau khi save
+
+---> Hoàn tất setup server
