@@ -1,8 +1,17 @@
-from django.shortcuts import render
+import json
+import hmac
+import uuid
+import requests
+import hashlib
+from django.conf import settings
 from django.utils import timezone
+from django.shortcuts import render
 from .utils.email import send_email
 from .utils.otp import generate_otp
+from rest_framework.decorators import action
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, permissions, generics, status
+from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import MultiPartParser
 from .models import PaymentMethod, TypeDelivery, StatusOrder, User, Auction, Bid, Order, OTP
 from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, StatusOrderSerializer, UserSerializer, AuctionSerializer, BidSerializer, OrderSerializer, OTPSerializer
@@ -10,7 +19,6 @@ from .serializers import PaymentMethodSerializer, TypeDeliverySerializer, Status
 from .models import AdministrativeRegion, AdministrativeUnit, Province, District, Ward
 from .serializers import AdminRegionSerializer, AdminUnitSerializer, ProvinceSerializer, DistrictSerializer, WardSerializer   
 from rest_framework.response import Response
-from rest_framework.decorators import action
 
 # Create your views here.
 class PaymentMethodViewSet(viewsets.ModelViewSet):
@@ -121,6 +129,11 @@ class AuctionViewSet(viewsets.ModelViewSet):
         auction.current_price = price
         auction.save()
         
+        if auction.type_payment.id == 4:
+            status_order = StatusOrder.objects.get(code=2)
+        else :
+            status_order = StatusOrder.objects.get(code=1)
+            
         us_collect = int(0.1 * price)
         shipper_collect = int(price - us_collect)
         # Tạo một order mới từ thông tin của đấu giá đã kết thúc
@@ -129,7 +142,7 @@ class AuctionViewSet(viewsets.ModelViewSet):
             auction=auction,
             shipper=shipper,
             name_product=auction.name,
-            status_id=StatusOrder.objects.get(code=1),
+            status_id= status_order,
             weight=auction.weight,
             source=auction.source,
             destination=auction.destination,
@@ -260,6 +273,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Không tìm thấy đơn hàng.', 'code': 'order_not_found'}, status=status.HTTP_404_NOT_FOUND)
 
         new_status_code = request.data.get('status_code')
+        # is_payment = request.data.get('is_payment')
 
         if not new_status_code:
             return Response({'message': 'Không tìm thấy trạng thái đầu vào.', 'code': 'no_new_status'}, status=status.HTTP_400_BAD_REQUEST)
@@ -268,15 +282,16 @@ class OrderViewSet(viewsets.ModelViewSet):
             new_status = StatusOrder.objects.get(code=new_status_code)
         except StatusOrder.DoesNotExist:
             return Response({'message': 'Trạng thái không tồn tại.', 'code': 'invalid_status'}, status=status.HTTP_400_BAD_REQUEST)
-
+        
         valid_transitions = {
             0: [1],  # Chờ thanh toán
             1: [2],  # Chờ lấy hàng
-            2: [3],  # Đang chuyển hàng
-            3: [4, 5, 6],  # Đã giao thành công hoặc thất bại
-            4: [],  # Final state
-            5: [],  # Final state
-            6: [],  # Final state
+            2: [3, -2],  # Đang chuyển hàng
+            3: [4, -4],  # Đã giao thành công hoặc thất bại
+            4: [],  # Final state giao hàng thành công
+            5: [], # Final state hoàn tiền
+            -2: [5],  # Final state lấy hàng thất bại
+            -4: [5],  # Final state giao hàng thất bại
         }
 
         current_status_code = order.status_id.code
@@ -316,3 +331,140 @@ class DistrictViewSet(viewsets.ModelViewSet):
 class WardViewSet(viewsets.ModelViewSet):
     queryset = Ward.objects.order_by('name')
     serializer_class = WardSerializer
+    
+@csrf_exempt
+def momo_payment(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order_id = data.get('order_id')
+            amount = data.get('amount')
+            
+            if not order_id or not amount:
+                return JsonResponse({'error': 'Invalid request data'}, status=400)
+            
+            access_key = settings.ACCESS_KEY
+            partner_code = settings.PARTNER_CODE
+            secret_key = settings.SECRET_KEY
+            orderInfo = "Thanh toan don hang " + str(order_id)
+            requestId = str(uuid.uuid4())
+            request_type = settings.REQUEST_TYPE
+            redirectUrl = settings.REDIRECT_URL
+            ipnUrl = settings.IPN_URL
+            endpoint = settings.ENDPOINT
+            extraData = ""
+            raw_signature = f"accessKey={access_key}&amount={amount}&extraData{extraData}=&ipnUrl={ipnUrl}&orderId={order_id}&orderInfo={orderInfo}&partnerCode={partner_code}&redirectUrl={redirectUrl}&requestId={requestId}&requestType={request_type}"
+            
+            signature = hmac.new(bytes(secret_key, 'ascii'), bytes(raw_signature, 'ascii'), hashlib.sha256).hexdigest()
+            
+            payload = {
+                "partnerCode": partner_code,
+                "requestId": requestId,
+                "amount": str(amount),
+                "orderId": order_id,
+                "orderInfo": orderInfo,
+                "redirectUrl": redirectUrl,
+                "ipnUrl": ipnUrl,
+                "extraData": extraData,
+                'lang': "vi",
+                "requestType": request_type,
+                'signature': signature
+            }
+            
+            # Chuyển đổi payload thành chuỗi JSON
+            payload_json = json.dumps(payload)
+            headers = {'Content-Type': 'application/json', 'Content-Length': str(len(payload_json))}
+            
+            response = requests.post(endpoint, headers=headers, data=payload_json)
+
+            return JsonResponse(response.json())
+
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Invalid JSON', 'code': 'invalid_json'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return JsonResponse({'message': str(e), 'code': 'exception'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return JsonResponse({'message': 'Invalid request method', 'code': 'invalid_request'}, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+def momo_notify(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            # Các tham số từ MoMo
+            partner_code = data.get('partnerCode')
+            order_id = data.get('orderId')
+            request_id = data.get('requestId')
+            amount = data.get('amount')
+            order_info = data.get('orderInfo')
+            order_type = data.get('orderType')
+            trans_id = data.get('transId')
+            result_code = data.get('resultCode')
+            message = data.get('message')
+            pay_type = data.get('payType')
+            response_time = data.get('responseTime')
+            extra_data = data.get('extraData')
+            signature = data.get('signature')
+            
+            access_key = settings.ACCESS_KEY
+            secret_key = settings.SECRET_KEY
+            
+            # Tạo raw signature để kiểm tra chữ ký từ MoMo
+            raw_signature = f"accessKey={access_key}&amount={amount}&extraData={extra_data}&message={message}&orderId={order_id}&orderInfo={order_info}&orderType={order_type}&partnerCode={partner_code}&payType={pay_type}&requestId={request_id}&responseTime={response_time}&resultCode={result_code}&transId={trans_id}"
+            
+            # Tạo signature để so sánh
+            generated_signature = hmac.new(secret_key.encode('utf-8'), raw_signature.encode('utf-8'), hashlib.sha256).hexdigest()
+            
+            if generated_signature != signature:
+                return JsonResponse({'error': 'Invalid signature'}, status=400)
+            
+            if result_code == 0:
+                try:
+                    order = Order.objects.get(id=order_id)
+                    order.status_id = StatusOrder.objects.get(code=2) 
+                    order.save()
+                except Order.DoesNotExist:
+                    return JsonResponse({'error': 'Order does not exist'}, status=404)
+            
+            return JsonResponse({'message': 'Notify received'}, status=200)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def payment_success(request):
+    if request.method == 'GET':
+        try:
+            partner_code = request.GET.get('partnerCode')
+            order_id = request.GET.get('orderId')
+            request_id = request.GET.get('requestId')
+            amount = request.GET.get('amount')
+            order_info = request.GET.get('orderInfo')
+            order_type = request.GET.get('orderType')
+            trans_id = request.GET.get('transId')
+            result_code = request.GET.get('resultCode')
+            message = request.GET.get('message')
+            pay_type = request.GET.get('payType')
+            response_time = request.GET.get('responseTime')
+            extra_data = request.GET.get('extraData')
+            
+            if result_code == '0':
+                try:
+                    order = Order.objects.get(id=order_id)
+                    order.status_id = StatusOrder.objects.get(code=2) 
+                    order.save()
+                    return render(request, 'payment_success.html', {'order': order, 'message': 'Thanh toán thành công!'})
+                except Order.DoesNotExist:
+                    return HttpResponse('Order does not exist', status=404)
+            else:
+                return render(request, 'payment_failed.html', {'message': 'Thanh toán thất bại. Vui lòng thử lại.'})
+        
+        except Exception as e:
+            return HttpResponse(f'Error: {str(e)}', status=500)
+    
+    return HttpResponse('Invalid request method', status=400)

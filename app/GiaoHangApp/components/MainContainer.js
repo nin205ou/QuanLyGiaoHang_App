@@ -21,7 +21,8 @@ import {
   ThongBao,
   AuctionCustomer,
   AuctionShipper,
-  OrderShipper
+  OrderShipper,
+  OrderCustomer
 } from './screens/';
 
 import MainTabShipper from './screens/Shipper';
@@ -58,6 +59,8 @@ const MainTabNavigator = () => {
             return <Icon name="truck" size={size} color={color} />;
           } else if (route.name === 'OrderShipper') {
             return <Icon name={focused ? 'sticky-note' : 'sticky-note-o'} size={size} color={color} />;
+          } else if (route.name === 'OrderCustomer') {
+            return <Icon name={focused ? 'sticky-note' : 'sticky-note-o'} size={size} color={color} />;
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -72,7 +75,9 @@ const MainTabNavigator = () => {
     >
       <Tab.Screen name="Home" component={Home} />
       {userInfor.role == 1 && <Tab.Screen name="QuanLyShipper" component={QuanLyShipper} />}
+
       {userInfor.role == 2 && <Tab.Screen name="DonHang" component={DonHang} />}
+      {userInfor.role == 2 && <Tab.Screen name="OrderCustomer" component={OrderCustomer} />}
 
       {userInfor.role == 3 && <Tab.Screen name="Auctioning" component={Auctioning} />}
       {userInfor.role == 3 && <Tab.Screen name="OrderShipper" component={OrderShipper} />}

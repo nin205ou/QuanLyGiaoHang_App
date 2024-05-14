@@ -25,19 +25,12 @@ SECRET_KEY = 'django-insecure-6k!7i7h1no$&uvpf@=*-o%u$5r3^@=46gw0h+e-h8yt(+og(8!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # SMTP server
-EMAIL_PORT = 587  # Cổng SMTP 
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'services2907@gmail.com'
-EMAIL_HOST_PASSWORD = 'dwkl aedq ptpq uros'
-
 ALLOWED_HOSTS = [
+    '858b-2402-800-6314-c783-ec6d-c21b-6ff3-3dbf.ngrok-free.app',
     'localhost',
     '192.168.1.46',
     '192.168.0.138',
-    '192.168.1.5',
-    '858b-2402-800-6314-c783-ec6d-c21b-6ff3-3dbf.ngrok-free.app'
+    '192.168.1.5'
 ]
 
 
@@ -146,6 +139,23 @@ AUTH_USER_MODEL = "api.User"
 
 CLIENT_ID = 'AENcdHOHsUoIgOSKLSNtH5pIZbbJzWhLodGkgCRt'
 CLIENT_SECRET = 'GxDX99jOIbBwIeS0YmsSlKV0ltFrO1ZrxUIcV8nhUffz8qA7jd6ouLH1lCkBWU8aSU08qlB2dDhpndKdg6Rb2e9NyQER4MimQyndabuJNGVToplN9jMLh8Rq9bFTOlrm'
+
+# Email sirvice
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # SMTP server
+EMAIL_PORT = 587  # Cổng SMTP 
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'services2907@gmail.com'
+EMAIL_HOST_PASSWORD = 'dwkl aedq ptpq uros'
+
+# Momo payment settings
+ACCESS_KEY = "F8BBA842ECF85"
+PARTNER_CODE = "MOMO"
+SECRET_KEY = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
+REQUEST_TYPE = "captureWallet"
+REDIRECT_URL = "https://" + ALLOWED_HOSTS[0] + "/api/payment_success/"
+IPN_URL = "https://" + ALLOWED_HOSTS[0] + "/api/momo_notify/"
+ENDPOINT = "https://test-payment.momo.vn/v2/gateway/api/create"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

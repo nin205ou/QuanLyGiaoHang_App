@@ -14,6 +14,7 @@ import ThongBao from './ThongBao'
 import AuctionCustomer from './auctions/AuctionCustomer'
 import AuctionShipper from './auctions/AuctionShipper'
 import OrderShipper from './OrderShipper'
+import OrderCustomer from './OrderCustomer'
 
 export {
     Home,
@@ -31,5 +32,6 @@ export {
     ThongBao,
     AuctionCustomer,
     AuctionShipper,
-    OrderShipper
+    OrderShipper,
+    OrderCustomer
 }

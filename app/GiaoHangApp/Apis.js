@@ -12,6 +12,7 @@ export const endpoints = {
     'otps': 'api/otps/',
     'orders': 'api/orders/',
     'status_order': 'api/status_order/',
+    'momo_payment': 'api/momo_payment/',
 }
 
 export const authApi = (accessToken) => axios.create(

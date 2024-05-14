@@ -1,3 +1,5 @@
+import random
+import string
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
@@ -109,6 +111,7 @@ class StatusOrder(models.Model):
         return self.name
     
 class Order(BaseModel):
+    id = models.CharField(primary_key=True, max_length=8, editable=False, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='orders')
     shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders_shipper')
@@ -128,6 +131,19 @@ class Order(BaseModel):
     
     def __str__(self):
         return self.name_product + ' - ' + self.user.username + ' : ' + str(self.price)
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = self.generate_unique_id()
+        super(Order, self).save(*args, **kwargs)
+
+    def generate_unique_id(self):
+        length = 8
+        characters = string.ascii_letters + string.digits
+        while True:
+            unique_id = ''.join(random.choice(characters) for _ in range(length))
+            if not Order.objects.filter(id=unique_id).exists():
+                return unique_id
     
 class TypeDelivery(BaseModel):
     name = models.CharField(max_length=255)

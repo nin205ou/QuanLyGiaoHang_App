@@ -87,6 +87,14 @@ export default function TaoMoiDH({ navigation }) {
     }
   };
 
+  const checkPaymentMethod = (value) => {
+    if (value !== 1 && value !== 4) {
+      showToast('Chúng tôi chưa hỗ trợ phương thức thanh toán này.', 'error')
+    } else {
+      setSelectedPayment(value);
+    }
+  };
+
   const validation = () => {
     if (name === '' || description === '' || weight === '' || source === '' || destination === '' || collection === '' || phoneNumber === '' || startPrice === '') {
       showToast('Vui lòng nhập đầy đủ thông tin', 'error');
@@ -163,7 +171,7 @@ export default function TaoMoiDH({ navigation }) {
       </TouchableOpacity> */}
       <PickerSelect
         placeholder={{ label: 'Phương thức thanh toán', value: null }}
-        onValueChange={value => setSelectedPayment(value)}
+        onValueChange={value => checkPaymentMethod(value)}
         items={paymentMethods.map(method => ({ label: method.name, value: method.id }))}
         value={selectedPayment}
       />

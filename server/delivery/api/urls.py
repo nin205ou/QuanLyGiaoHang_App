@@ -21,5 +21,8 @@ router.register('district', views.DistrictViewSet)
 router.register('ward', views.WardViewSet)
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('momo_payment/', views.momo_payment),
+    path('momo_notify/', views.momo_notify),
+    path('payment_success/', views.payment_success),
 ]

@@ -7,12 +7,14 @@ import { Toast, showToast } from '../../static/js/toast';
 import Button from '../static/Button'
 import { AuthContext } from '../../context/authContext';
 
-const OrderItem = ({ item , refreshing, fetchData}) => {
+const OrderItem = ({ item, refreshing, fetchData }) => {
     const [statusOrders, setStatusOrders] = React.useState([]);
-    const [currentStatus, setCurrentStatus] = React.useState();
+    const [currentStatus, setCurrentStatus] = React.useState(item.status_id);
     const [isDisabledUpdateBtn, setIsDisabledUpdateBtn] = React.useState(false)
+    const [isDisabledPaymentBtn, setIsDisabledPaymentBtn] = React.useState(false)
     const formatCollect = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.collection)
-    const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.shipper_collect)
+    const formattedShipperCollect = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.shipper_collect)
+    const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)
     const localTime = moment.utc(item.created_at).tz('Asia/Ho_Chi_Minh').add(6, 'hours');
     const dateCreated = moment(localTime).format('YYYY-MM-DD HH:mm:ss')
     const phoneNumber = item.phone_number_giver;
@@ -36,19 +38,57 @@ const OrderItem = ({ item , refreshing, fetchData}) => {
         }
         try {
             await authApi(userToken).put(endpoints['orders'] + item.id + '/update_status/', { status_code: currentStatus });
-            showToast('Cập nhật trạng thái đơn hàng thành công.', 'success');
             fetchData()
         } catch (error) {
             showToast(error.response.data.message, 'error');
         }
     };
 
-    React.useEffect(() => {
-        fetchStatusOrder();
-        if (item.status_id == 4 || item.status_id == -2 || item.status_id == 1) {
-            setIsDisabledUpdateBtn(true)
+    const handleUPaymentOrder = async () => {
+        try {
+            const response = await authApi(userToken).post(endpoints['momo_payment'],
+                JSON.stringify(
+                    {
+                        order_id: item.id,
+                        amount: item.price,
+                    }
+                ),
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+
+            const data = response.data;
+            if (data.resultCode == 0) {
+                Linking.openURL(data.payUrl).then(async () => {
+                    await authApi(userToken).put(endpoints['orders'] + item.id + '/update_status/', { status_code: currentStatus, is_payment: true })
+                }).catch(err => {
+                    showToast(err.response.data.message || 'Không thể mở trình duyệt', 'error');
+                })
+            } else {
+                showToast(data.message, 'error');
+            }
+        } catch (error) {
+            showToast(error.response.data.message || 'lỗi', 'error');
+        } finally {
+            fetchData()
         }
-    }, [refreshing])
+    }
+
+    React.useEffect(() => {
+        userInfor.role == 3 && fetchStatusOrder();
+        if (item.status_id == 4 || item.status_id == 7 || item.status_id == -2 || item.status_id == 1) {
+            setIsDisabledUpdateBtn(true)
+        } else {
+            setIsDisabledUpdateBtn(false)
+        }
+        if (item.status_id != 1 || item.type_payment == 4) {
+            setIsDisabledPaymentBtn(true)
+        } else {
+            setIsDisabledPaymentBtn(false)
+        }
+    }, [refreshing, item])
 
     return (
         <View style={styles.itemContainer}>
@@ -58,19 +98,37 @@ const OrderItem = ({ item , refreshing, fetchData}) => {
             <Text style={styles.label}>Thời gian cuối phải giao: <Text style={styles.value}>{dateCreated.toLocaleString()}</Text></Text>
             <Text style={styles.label}>Địa chỉ nhận hàng: <Text style={styles.value}>{item.source}</Text></Text>
             <Text style={styles.label}>Địa chỉ giao hàng: <Text style={styles.value}>{item.destination}</Text></Text>
-            <Text style={styles.label}>Số điện thoại người nhận: <Text onPress={() => Linking.openURL(`tel:${phoneNumber}`)} style={{ ...styles.value, color: 'blue' }}>{formattedPhoneNumber}</Text></Text>
-            <Text style={styles.label}>Số tiền thu hộ khách hàng: <Text style={styles.value}>{formatCollect}</Text></Text>
-            <Text style={styles.label}>Số tiền nhận được cho đơn hàng: <Text style={styles.value}>{formattedPrice}</Text></Text>
-            <PickerSelect
-                placeholder={{ label: 'Sửa trạng thái', value: null }}
-                onValueChange={(value) => setCurrentStatus(value)}
-                items={statusOrders.map((status) => ({
-                    label: status.name,
-                    value: status.code,
-                }))}
-                style={{ inputAndroid: { width: '100%', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 } }}
-            />
-            <Button title="Cập nhật" onPress={handleUpdateSttOrder} disabled={isDisabledUpdateBtn} />
+            <Text style={styles.label}>
+                Số điện thoại người nhận:
+                {
+                    (userInfor.role == 3 && item.status_id == 4) ? (
+                        <Text style={styles.value}> *** **** ****</Text>
+                    ) : (
+                        <Text onPress={() => Linking.openURL(`tel:${phoneNumber}`)} style={{ ...styles.value, color: 'blue' }}>
+                            {formattedPhoneNumber}
+                            <Text style={{ ...styles.value, fontSize: 11, fontStyle: 'italic' }}> ( Bấm để gọi ) </Text>
+                        </Text>
+                    )
+                }
+            </Text>
+            <Text style={styles.label}>{userInfor.role == 3 ? "Số tiền thu hộ khách hàng" : "Số tiền được thu hộ"}: <Text style={styles.value}>{formatCollect}</Text></Text>
+            <Text style={styles.label}>{userInfor.role == 3 ? "Số tiền nhận được cho đơn hàng" : "Số tiền trả cho đơn hàng"}: <Text style={styles.value}>{userInfor.role == 3 ? formattedShipperCollect : formattedPrice}</Text></Text>
+            {(userInfor.role == 2 && !isDisabledPaymentBtn && item.type_payment != 4) && <Text style={{ ...styles.value, fontSize: 14, fontStyle: 'italic' }}>Vui lòng thanh toán đơn hàng để tiếp tục</Text>}
+            {
+                userInfor.role == 3 && !isDisabledUpdateBtn && (
+                    <PickerSelect
+                        placeholder={{ label: 'Sửa trạng thái', value: null }}
+                        onValueChange={(value) => setCurrentStatus(value)}
+                        items={statusOrders.map((status) => ({
+                            label: status.name,
+                            value: status.code,
+                        }))}
+                        style={{ inputAndroid: { width: '100%', backgroundColor: 'white', borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingHorizontal: 10 } }}
+                    />
+                )
+            }
+            {userInfor.role == 3 && <Button title={isDisabledUpdateBtn ? (item.status_id == 4 ? "Đã giao thành công" : "Đang làm thủ tục hoàn tiền") : "Cập nhật trạng thái"} onPress={handleUpdateSttOrder} disabled={isDisabledUpdateBtn} />}
+            {userInfor.role == 2 && <Button title={isDisabledPaymentBtn ? (item.type_payment == 4 ? "Thanh toán tiền mặt" : "Đã thanh toán") : "Thanh toán Momo"} onPress={handleUPaymentOrder} disabled={isDisabledPaymentBtn} backgroundColor={(item.type_payment == 1) ? "#A63065" : "green"} />}
             <Toast />
         </View>
     )
@@ -82,7 +140,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: '#ccc',
         paddingVertical: 10,
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        marginBottom: 10
     },
     label: {
         fontSize: 16,
@@ -90,7 +149,7 @@ const styles = StyleSheet.create({
         marginBottom: 2,
     },
     value: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: 'normal',
         marginBottom: 5,
     },

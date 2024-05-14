@@ -1,0 +1,67 @@
+{% load humanize %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thanh Toán Thành Công</title>
+    <style>
+        body {
+            width: 100%;%
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            background-color: white;
+            width: 60%;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #A63065;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px #999;
+        }
+        .btn:hover {background-color: #45a049}
+        .btn:active {
+            background-color: #45a049;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ message }}</h1>
+        <p> Bạn đã thanh toán thành công đơn hàng <strong>{{ order.id }}</strong> với số tiền là <strong>{{ order.price|intcomma }} đ</strong>. </p>
+        <p> Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. </p>
+        <p> Trân trọng, </p>
+        <button class="btn" onclick="redirectToApp()">Quay lại ứng dụng</button>
+    </div>
+    <script>
+        function redirectToApp() {
+            window.location.href = "exp://192.168.1.46:8081";
+        }
+    </script>
+</body>
+</html>
