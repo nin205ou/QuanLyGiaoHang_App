@@ -56,7 +56,7 @@ export default function OrderShipper({ navigation }) {
           <FlatList
             data={data}
             keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => <OrderItem item={item} />}
+            renderItem={({ item }) => <OrderItem item={item} refreshing={refreshing} fetchData={fetchData}/>}
             refreshControl={
               <RefreshControl
                 refreshing={false}
@@ -71,13 +71,12 @@ export default function OrderShipper({ navigation }) {
         )
 
       }
-      <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20, justifyContent: 'flex-end' }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-around', justifyContent: 'flex-end' }}>
         <TouchableOpacity onPress={handleTaoMoiDH} style={{ marginBottom: 10, marginRight: 10, padding: 10, backgroundColor: 'green', borderRadius: 50 }}>
           <Text style={styles.buttonText}>Đấu giá đang diễn ra</Text>
         </TouchableOpacity>
       </View>
       <Toast />
-
     </View>
   );
 }

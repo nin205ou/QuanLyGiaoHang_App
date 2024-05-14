@@ -41,12 +41,12 @@ export const AuthProvider = ({ children }) => {
       });
   };
 
-  const logout = async (onLogoutSuccess, onLogoutFailed) => {
+  const logout = (onLogoutSuccess, onLogoutFailed) => {
     try {
       setUserToken(null);
       setUserInfor({});
-      await AsyncStorage.removeItem('userToken');
-      await AsyncStorage.removeItem('userInfor');
+      AsyncStorage.removeItem('userToken');
+      AsyncStorage.removeItem('userInfor');
       onLogoutSuccess();
     } catch (error) {
       onLogoutFailed(error.message);

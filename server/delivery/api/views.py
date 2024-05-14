@@ -239,7 +239,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
     def get_queryset(self):
         queryset = Order.objects.all()
 
@@ -252,6 +251,51 @@ class OrderViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(shipper_id=shipper_id)
 
         return queryset
+    
+    @action(detail=True, methods=['put'])
+    def update_status(self, request, pk=None):
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response({'message': 'Không tìm thấy đơn hàng.', 'code': 'order_not_found'}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status_code = request.data.get('status_code')
+
+        if not new_status_code:
+            return Response({'message': 'Không tìm thấy trạng thái đầu vào.', 'code': 'no_new_status'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            new_status = StatusOrder.objects.get(code=new_status_code)
+        except StatusOrder.DoesNotExist:
+            return Response({'message': 'Trạng thái không tồn tại.', 'code': 'invalid_status'}, status=status.HTTP_400_BAD_REQUEST)
+
+        valid_transitions = {
+            0: [1],  # Chờ thanh toán
+            1: [2],  # Chờ lấy hàng
+            2: [3],  # Đang chuyển hàng
+            3: [4, 5, 6],  # Đã giao thành công hoặc thất bại
+            4: [],  # Final state
+            5: [],  # Final state
+            6: [],  # Final state
+        }
+
+        current_status_code = order.status_id.code
+        if new_status_code == current_status_code:
+            return Response({'message': 'Hãy cập nhật trạng thái mới.', 'code': 'same_status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if new_status_code not in valid_transitions[current_status_code]:
+            return Response({'message': 'Trạng thái mới không hợp lệ.', 'code': 'invalid_new_status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        order.status_id = new_status
+        order.save()
+        
+        if new_status_code == 4:           
+            send_email("Đơn hàng đã được giao thành công", "order_delivery_successfully_email.html", 
+                        {"customerName": order.user.username, "shipperName" : order.shipper.username, "order": order}, 
+                        order.user.email)
+
+        return Response({'message': 'Cập nhật trạng thái đơn hàng thành công.', 'code': 'success'}, status=status.HTTP_200_OK)
+    
 #Address
 class AdminRegionViewSet(viewsets.ModelViewSet):
     queryset = AdministrativeRegion.objects.order_by('name')

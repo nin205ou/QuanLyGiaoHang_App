@@ -63,9 +63,13 @@ class BidSerializer(ModelSerializer):
     
 
 class OrderSerializer(ModelSerializer):
+    status_name = serializers.SerializerMethodField()
     class Meta:
         model = Order
         fields = '__all__' 
+    
+    def get_status_name(self, obj):
+        return obj.status_id.name
         
 #Address
 class AdminRegionSerializer(ModelSerializer):

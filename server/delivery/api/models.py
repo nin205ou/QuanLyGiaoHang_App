@@ -149,8 +149,6 @@ class Notification(BaseModel):
     def __str__(self):
         return self.content
     
-    
-    
 # Address
 class AdministrativeRegion(models.Model):
     id = models.IntegerField(primary_key=True)

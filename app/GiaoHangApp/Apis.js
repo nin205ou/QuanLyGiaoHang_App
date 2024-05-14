@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const root_api = 'https://3c08-115-73-132-68.ngrok-free.app/'
+const root_api = 'https://858b-2402-800-6314-c783-ec6d-c21b-6ff3-3dbf.ngrok-free.app/'
 
 export const endpoints = {
     'login': 'o/token/',
