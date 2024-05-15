@@ -38,14 +38,15 @@ class StatusOrderViewSet(viewsets.ModelViewSet):
     
 class UserViewSet(viewsets.ViewSet,
             generics.CreateAPIView,
-            generics.RetrieveAPIView):
+            generics.RetrieveAPIView,
+            generics.DestroyAPIView):
     queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer
     parser_classes = [MultiPartParser]
     
     def get_permissions(self):
         if self.action == 'retrieve':
-            return [permissions.IsAuthenticated]
+            return [permissions.IsAuthenticated()]
         
         return [permissions.AllowAny()]
     
@@ -54,6 +55,47 @@ class UserViewSet(viewsets.ViewSet,
         return Response(UserSerializer(request.user, context={
             "request": request
         }).data, status=status.HTTP_200_OK)
+        
+    @action(methods=['get'], url_path="get_shippers", detail=False)
+    def get_shippers(self, request):
+        is_waiting_accept = request.query_params.get('is_waiting_accept')
+        shippers = User.objects.filter(role=3, is_active=True, is_waiting_accept= is_waiting_accept)
+        return Response(UserSerializer(shippers, many=True).data, status=status.HTTP_200_OK)
+    
+    @action(methods=['put'], detail=False)
+    def response_shipper(self, request):
+        user_id = request.data.get('shipper_id')
+        is_accept = request.data.get('is_accept')
+        
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'message': 'Không tìm thấy tài khoản.', 'code' : 'shipper_not_found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if user.is_waiting_accept and str(user.role) == 'Shipper':
+            if is_accept is not None and is_accept.lower() == 'true':
+                user.is_waiting_accept = False
+                user.save()
+                return Response({'message': 'Chấp nhận shipper thành công.' + str(is_accept) , 'code' : 'shipper_accepted'}, status=status.HTTP_200_OK)
+            else:
+                user.delete()
+                return Response({'message': 'Từ chối shipper thành công.', 'code' : 'shipper_rejected'}, status=status.HTTP_200_OK)
+        
+        return Response({'message': 'Shipper không được chờ admin kiểm duyệt.', 'code' : 'shipper_not_waiting_accept'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=['post'], url_path="check_accept_shipper", detail=False)
+    def check_accept_shipper(self, request):
+        user_name = request.data.get('user_name')
+        
+        try:
+            user = User.objects.get(username=user_name)
+        except User.DoesNotExist:
+            return Response({'message': 'Không tìm thấy tài khoản.', 'code' : 'shipper_not_found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if user.is_waiting_accept and str(user.role) == 'Shipper':
+            return Response({'message': 'Shipper đang chờ được admin kiểm duyệt.', 'code' : 'shipper_waiting_accept'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({'message': 'Shipper đã được admin kiểm duyệt.', 'code' : 'shipper_accepted'}, status=status.HTTP_200_OK)
 
 class OTPViewSet(viewsets.ModelViewSet):
     queryset = OTP.objects.all()

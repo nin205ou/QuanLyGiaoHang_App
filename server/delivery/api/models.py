@@ -22,7 +22,7 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     cccd = models.CharField(max_length=12, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
-    is_staff = models.BooleanField(default=False) 
+    is_waiting_accept = models.BooleanField(default=False) 
 
     def __str__(self):
         return self.username
@@ -34,19 +34,26 @@ class User(AbstractUser):
         
     def save(self, *args, **kwargs):
         if not self.role_id:
-            # Gán vai trò mặc định khi tạo superuser
             self.role_id = Role.objects.get(name='Customer').id
+        if self.role_id == Role.objects.get(name='Shipper').id and not self.role_id:
+            self.is_waiting_accept = True
+            
         super().save(*args, **kwargs)
 
 class OTP(models.Model):
     email = models.EmailField()
     otp = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
-    expired_at = models.DateTimeField(default=timezone.now() + timedelta(minutes=15))
+    expired_at = models.DateTimeField()
     status = models.BooleanField('status', default=True)
     
     def __str__(self):
         return self.otp
+    
+    def save(self, *args, **kwargs):
+        if not self.id: 
+            self.expired_at = timezone.now() + timedelta(minutes=15)
+        super().save(*args, **kwargs)
     
     def is_valid(self):
         return self.expired_at > timezone.now()
@@ -77,19 +84,21 @@ class Auction(BaseModel):
     destination = models.CharField('destination', max_length=255)
     phone_number_giver = models.CharField('phone_number_giver', max_length=15)
     start_time = models.DateTimeField('start_time', auto_now_add=True)
-    end_time = models.DateTimeField('end_time', default= timezone.now() + timedelta(hours=12))
+    end_time = models.DateTimeField('end_time', default=None, null=True, blank=True)
     start_price = models.IntegerField('start_price')
     current_price = models.IntegerField('current_price')
     type_payment = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, related_name='auctions_payment_methods')
     winner_shipper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auctions_winner', null=True, blank=True)
     status = models.BooleanField('status', default=True)
     priority = models.IntegerField('priority', default=0)
-    
+        
     def save(self, *args, **kwargs):
-        if self.start_time:
-            twelve_hours_after_start = self.start_time + timedelta(hours=12)
-            if timezone.now() > twelve_hours_after_start:
-                self.status = False
+        if not self.id:
+            self.end_time = timezone.now() + timedelta(hours=12)
+        # if self.start_time:
+        #     twelve_hours_after_start = self.start_time + timedelta(hours=12)
+        #     if timezone.now() > twelve_hours_after_start:
+        #         self.status = False
         super().save(*args, **kwargs)
          
     def __str__(self):

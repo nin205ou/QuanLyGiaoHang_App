@@ -6,13 +6,12 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import Button from '../../static/Button';
 import { AuthContext } from '../../../context/authContext';
 import Apis, { authApi, endpoints } from "../../../Apis";
-// import {  } from 'react-native-gesture-handler';
 import { showToast, Toast } from '../../../static/js/toast';
 
 export default function AuctionCustomer({ route }) {
     const { auctionId } = route.params;
     const [auction, setAuction] = React.useState({});
-    const { userToken } = React.useContext(AuthContext);
+    const { userToken, userInfor } = React.useContext(AuthContext);
     const navigation = useNavigation();
     const [formattedPriceStart, setFormattedPriceStart] = React.useState('');
     const [formattedPriceCurrent, setFormattedPriceCurrent] = React.useState('');
@@ -111,9 +110,9 @@ export default function AuctionCustomer({ route }) {
             );
 
         }}
-            disabled={auction.winner_shipper !== null}
+            disabled={auction.winner_shipper !== null || userInfor.role == 1}
         >
-            <View style={[styles.btn, { opacity: auction.winner_shipper !== null ? 0.5 : 1 }]}>
+            <View style={[styles.btn, { opacity: (auction.winner_shipper !== null || userInfor.role == 1) ? 0.5 : 1 }]}>
                 <Text style={styles.btnText}>Chọn</Text>
             </View>
         </TouchableOpacity>
@@ -134,57 +133,57 @@ export default function AuctionCustomer({ route }) {
     }
 
     return (
-        <View style={{flex: 1}} >
-        <ScrollView style={{ flex: 1 }} refreshControl={
-            <RefreshControl
-                refreshing={false}
-                onRefresh={handleRefresh}
-            />
+        <View style={{ flex: 1 }} >
+            <ScrollView style={{ flex: 1 }} refreshControl={
+                <RefreshControl
+                    refreshing={false}
+                    onRefresh={handleRefresh}
+                />
 
-        }>
-            <Text style={styles.exprired}>Thời gian còn lại: {` ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`}</Text>
-            <View style={styles.container}>
-                <View style={styles.listItem}>
-                    <Text style={styles.item}>Tên đơn hàng: <Text style={styles.value}>{auction.name}</Text></Text>
-                    <Text style={styles.item}>Người tạo: <Text style={styles.value}>{auction.user_name}</Text></Text>
-                    <Text style={styles.item}>From
-                        <Text style={{ color: 'green', ...styles.value }}>{`  ${auction.source}   `}</Text>
-                        To
-                        <Text style={{ color: 'green', ...styles.value }}>{`  ${auction.destination}`}</Text>
-                    </Text>
-                    <Text style={styles.item}>Số shipper tham gia: <Text style={styles.value}>{auction.shipper_joining}</Text></Text>
-                    <Text style={styles.item}>Id shipper giành chiến thắng: <Text style={styles.value}>{auction.winner_shipper ? auction.winner_shipper : "Chưa có"}</Text></Text>
-                    <Text style={styles.item}>Số tiền đấu giá ban đầu: <Text style={styles.value}>{formattedPriceStart}</Text></Text>
-                    <Text style={styles.item}>Số tiền đấu giá hiện tại: <Text style={{ color: 'red', ...styles.value }}>{formattedPriceCurrent}</Text></Text>
+            }>
+                <Text style={styles.exprired}>Thời gian còn lại: {` ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`}</Text>
+                <View style={styles.container}>
+                    <View style={styles.listItem}>
+                        <Text style={styles.item}>Tên đơn hàng: <Text style={styles.value}>{auction.name}</Text></Text>
+                        <Text style={styles.item}>Người tạo: <Text style={styles.value}>{auction.user_name}</Text></Text>
+                        <Text style={styles.item}>From
+                            <Text style={{ color: 'green', ...styles.value }}>{`  ${auction.source}   `}</Text>
+                            To
+                            <Text style={{ color: 'green', ...styles.value }}>{`  ${auction.destination}`}</Text>
+                        </Text>
+                        <Text style={styles.item}>Số shipper tham gia: <Text style={styles.value}>{auction.shipper_joining}</Text></Text>
+                        <Text style={styles.item}>Id shipper giành chiến thắng: <Text style={styles.value}>{auction.winner_shipper ? auction.winner_shipper : "Chưa có"}</Text></Text>
+                        <Text style={styles.item}>Số tiền đấu giá ban đầu: <Text style={styles.value}>{formattedPriceStart}</Text></Text>
+                        <Text style={styles.item}>Số tiền đấu giá hiện tại: <Text style={{ color: 'red', ...styles.value }}>{formattedPriceCurrent}</Text></Text>
 
+                    </View>
+                    <Text style={{ backgroundColor: 'green', ...styles.exprired, marginTop: 15, borderRadius: 8 }}>Shippers</Text>
+                    <View style={styles.containerTable}>
+                        {
+                            tableData.length == 0 ? <Text style={{ textAlign: 'center', marginTop: 10 }}>Không có shipper nào tham gia</Text> :
+                                (
+                                    <Table borderStyle={{ borderColor: 'transparent' }}>
+                                        <Row data={tableHead} style={styles.head} textStyle={styles.text} />
+                                        {
+                                            tableData.map((rowData, index) => (
+                                                <TableWrapper key={index} style={styles.row}>
+                                                    {
+                                                        rowData.map((cellData, cellIndex) => {
+                                                            return <Cell key={cellIndex} data={cellIndex == 4 ? element({ "shipperId": cellData, "price": rowData[2] }, cellIndex) : cellData} textStyle={styles.text} />
+                                                        })
+                                                    }
+                                                </TableWrapper>
+                                            ))
+                                        }
+                                    </Table>
+                                )
+                        }
+                    </View>
                 </View>
-                <Text style={{ backgroundColor: 'green', ...styles.exprired, marginTop: 15, borderRadius: 8 }}>Shippers</Text>
-                <View style={styles.containerTable}>
-                    {
-                        tableData.length == 0 ? <Text style={{ textAlign: 'center', marginTop: 10 }}>Không có shipper nào tham gia</Text> :
-                            (
-                                <Table borderStyle={{ borderColor: 'transparent' }}>
-                                    <Row data={tableHead} style={styles.head} textStyle={styles.text} />
-                                    {
-                                        tableData.map((rowData, index) => (
-                                            <TableWrapper key={index} style={styles.row}>
-                                                {
-                                                    rowData.map((cellData, cellIndex) => {
-                                                        return <Cell key={cellIndex} data={cellIndex == 4 ? element({"shipperId": cellData, "price": rowData[2]}, cellIndex) : cellData} textStyle={styles.text} />
-                                                    })
-                                                }
-                                            </TableWrapper>
-                                        ))
-                                    }
-                                </Table>
-                            )
-                    }
-                </View>
-            </View>
-        </ScrollView>
-        <View style={{ marginBottom: 10, paddingHorizontal: 15 }}>
+            </ScrollView>
+            <View style={{ marginBottom: 10, paddingHorizontal: 15 }}>
                 <Button title="Hủy đấu giá" onPress={handleCancel} disabled={auction.winner_shipper !== null} />
-        </View>
+            </View>
             <Toast />
         </View>
     );

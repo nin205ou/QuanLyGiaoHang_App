@@ -127,7 +127,7 @@ const OrderItem = ({ item, refreshing, fetchData }) => {
                     />
                 )
             }
-            {userInfor.role == 3 && <Button title={isDisabledUpdateBtn ? (item.status_id == 4 ? "Đã giao thành công" : "Đang làm thủ tục hoàn tiền") : "Cập nhật trạng thái"} onPress={handleUpdateSttOrder} disabled={isDisabledUpdateBtn} />}
+            {userInfor.role == 3 && <Button title={isDisabledUpdateBtn ? (item.status_id == 7 ? "Đang làm thủ tục hoàn tiền" : item.status_name) : "Cập nhật trạng thái"} onPress={handleUpdateSttOrder} disabled={isDisabledUpdateBtn} />}
             {userInfor.role == 2 && <Button title={isDisabledPaymentBtn ? (item.type_payment == 4 ? "Thanh toán tiền mặt" : "Đã thanh toán") : "Thanh toán Momo"} onPress={handleUPaymentOrder} disabled={isDisabledPaymentBtn} backgroundColor={(item.type_payment == 1) ? "#A63065" : "green"} />}
             <Toast />
         </View>

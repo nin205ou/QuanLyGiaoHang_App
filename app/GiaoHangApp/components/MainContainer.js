@@ -75,6 +75,7 @@ const MainTabNavigator = () => {
     >
       <Tab.Screen name="Home" component={Home} />
       {userInfor.role == 1 && <Tab.Screen name="QuanLyShipper" component={QuanLyShipper} />}
+      {userInfor.role == 1 && <Tab.Screen name="Auctioning" component={Auctioning} />}
 
       {userInfor.role == 2 && <Tab.Screen name="DonHang" component={DonHang} />}
       {userInfor.role == 2 && <Tab.Screen name="OrderCustomer" component={OrderCustomer} />}
